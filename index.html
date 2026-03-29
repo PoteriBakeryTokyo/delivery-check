@@ -279,6 +279,33 @@
     margin-bottom: 5px;
     font-weight: 500;
   }
+  .time-prompt {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #FFF8E6;
+    border: 1.5px solid #F5C842;
+    border-radius: var(--radius);
+    padding: 9px 13px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #7A5800;
+    animation: promptPulse 0.4s ease;
+  }
+  .time-prompt svg { color: #C48A00; flex-shrink: 0; }
+  @keyframes promptPulse {
+    0%   { transform: scale(0.97); opacity: 0; }
+    60%  { transform: scale(1.01); }
+    100% { transform: scale(1);    opacity: 1; }
+  }
+  .time-extra label {
+    font-size: 12px;
+    color: var(--text-sub);
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
 
   /* ─── Camera section ─── */
   .camera-area {
@@ -560,7 +587,10 @@
         </div>
       </div>
       <div class="time-extra" id="yokoTimeExtra">
-        <label>到着時刻を入力</label>
+        <div class="time-prompt">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          到着予定時刻を入力してください
+        </div>
         <input type="time" id="yokoTime">
       </div>
       <div class="helper-text" id="yokoMailHint" style="display:none;color:var(--danger)">
@@ -620,7 +650,10 @@
         </div>
       </div>
       <div class="time-extra" id="akibaTimeExtra">
-        <label>到着時刻を入力</label>
+        <div class="time-prompt">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          到着予定時刻を入力してください
+        </div>
         <input type="time" id="akibaTime">
       </div>
     </div>
@@ -651,7 +684,10 @@
         </div>
       </div>
       <div class="time-extra" id="shiiTimeExtra">
-        <label>到着時刻を入力</label>
+        <div class="time-prompt">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          到着予定時刻を入力してください
+        </div>
         <input type="time" id="shiiTime">
       </div>
     </div>
@@ -672,7 +708,7 @@
 // ═══════════════════════════════════════════
 // CONFIG — GASのWebアプリURLに差し替え
 // ═══════════════════════════════════════════
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzdw94KTvAufXsFJFUqVfZzfqz_mZPHpajQsrwmX1IX-sJ-VWr4j9z86_E59vKMwL2POA/exec';
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
 
 // ═══════════════════════════════════════════
 // STATE
