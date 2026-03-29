@@ -842,10 +842,12 @@ function loadDataForNameDate(name, date) {
     // ロックバッジ: 他人のデータの場合
     if (!isMine && raw) {
       document.getElementById('lockBadge').classList.add('visible');
-      // 他人データは読み取り専用には「しない」 — 名前・日付が同じなら同一人物の可能性
-      // ただし上書きはトークンを自分のものに更新
     }
     saved.token = state.token; // 継承
+
+    // ★ 復元後にロック状態を必ず再評価
+    updateUI();
+    updateProgress();
 
     showToast('保存済みデータを復元しました');
     return true;
@@ -1003,11 +1005,42 @@ document.getElementById('shiiTime').addEventListener('change', function() {
 // ═══════════════════════════════════════════
 // CAMERA
 // ═══════════════════════════════════════════
+const PHOTO_MAX_PX   = 1280;   // 長辺の上限ピクセル
+const PHOTO_QUALITY  = 0.82;   // JPEG品質（0〜1）
+
 function triggerCamera() {
   document.getElementById('cameraInput').click();
 }
 
-document.getElementById('cameraInput').addEventListener('change', function(e) {
+/**
+ * Canvas を使って画像を縮小し、base64 JPEGを返す
+ * 長辺が MAX_PX 以下ならリサイズしない
+ */
+function resizeImage(dataUrl, maxPx, quality) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxPx || height > maxPx) {
+        if (width >= height) {
+          height = Math.round(height * maxPx / width);
+          width  = maxPx;
+        } else {
+          width  = Math.round(width * maxPx / height);
+          height = maxPx;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width  = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
+document.getElementById('cameraInput').addEventListener('change', async function(e) {
   const file = e.target.files[0];
   if (!file) return;
 
@@ -1018,11 +1051,21 @@ document.getElementById('cameraInput').addEventListener('change', function(e) {
   const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   state.photoName = `${dateStr}_${timeStr}_${state.name || 'unknown'}.jpg`;
 
+  // 元画像を読み込んでリサイズ
   const reader = new FileReader();
-  reader.onload = ev => {
-    state.photo = ev.target.result;
-    document.getElementById('photoImg').src = ev.target.result;
-    document.getElementById('photoLabel').textContent = state.photoName;
+  reader.onload = async ev => {
+    const original = ev.target.result;
+    const resized  = await resizeImage(original, PHOTO_MAX_PX, PHOTO_QUALITY);
+
+    // サイズ確認をコンソールに出力（デバッグ用）
+    const origKB   = Math.round(original.length * 0.75 / 1024);
+    const resizedKB = Math.round(resized.length * 0.75 / 1024);
+    console.log(`写真縮小: ${origKB}KB → ${resizedKB}KB`);
+
+    state.photo = resized;
+    document.getElementById('photoImg').src = resized;
+    document.getElementById('photoLabel').textContent =
+      `${state.photoName}　(約${resizedKB}KB)`;
     document.getElementById('photoPreview').style.display = 'block';
     saveToLocal();
     updateUI();
@@ -1055,7 +1098,8 @@ function isYokoDone()   {
 }
 function isPhotoDone()  {
   if (state.yokoArrival === '横浜なし') return true;
-  return !!state.photo;
+  // photoデータ本体 or 復元時にphotoNameが残っていれば完了扱い
+  return !!(state.photo || state.photoName);
 }
 function isAkibaDone()  {
   if (!state.akibaArrival) return false;
