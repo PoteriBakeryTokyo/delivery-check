@@ -984,14 +984,20 @@ function setRadioDOM(group, val) {
 document.getElementById('yokoTime').addEventListener('change', function() {
   state.yokoTime = this.value;
   saveToLocal();
+  updateUI();
+  updateProgress();
 });
 document.getElementById('akibaTime').addEventListener('change', function() {
   state.akibaTime = this.value;
   saveToLocal();
+  updateUI();
+  updateProgress();
 });
 document.getElementById('shiiTime').addEventListener('change', function() {
   state.shiiTime = this.value;
   saveToLocal();
+  updateUI();
+  updateProgress();
 });
 
 // ═══════════════════════════════════════════
