@@ -63,6 +63,14 @@
     font-size: 12px;
     color: var(--text-sub);
   }
+  .save-indicator {
+    font-size: 11px;
+    color: var(--success);
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .save-indicator.show { opacity: 1; }
 
   /* ─── Progress bar ─── */
   .progress-bar {
@@ -379,6 +387,38 @@
     margin-top: 20px;
     padding: 0 0 8px;
   }
+
+  /* ─── Timing group ─── */
+  .timing-group {
+    margin-bottom: 6px;
+  }
+  .timing-group + .timing-group {
+    margin-top: 20px;
+  }
+  .timing-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 0 2px;
+  }
+  .timing-label-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .timing-label-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .timing-label-icon {
+    font-size: 13px;
+    line-height: 1;
+  }
   .btn-submit {
     width: 100%;
     padding: 16px;
@@ -492,206 +532,245 @@
 
 <header class="header">
   <span class="header-title">配送チェック</span>
-  <span class="header-date" id="headerDate"></span>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="save-indicator" id="saveIndicator">保存済み ✓</span>
+    <span class="header-date" id="headerDate"></span>
+  </div>
 </header>
 <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 
 <main class="main">
 
-  <!-- ① 名前 -->
-  <div class="section" id="sec-name">
-    <div class="section-header">
-      <div class="section-num" id="num-name">1</div>
-      <span class="section-label">名前</span>
-      <span class="section-required">必須</span>
+  <!-- ══ 椎名町出発時 ══ -->
+  <div class="timing-group">
+    <div class="timing-label">
+      <span class="timing-label-icon">🚌</span>
+      <span class="timing-label-text">椎名町 出発時</span>
+      <div class="timing-label-line"></div>
     </div>
-    <div class="section-body">
-      <select id="nameSelect">
-        <option value="">選択してください</option>
-        <option value="雨宮優">雨宮優</option>
-        <option value="荒金亮太">荒金亮太</option>
-        <option value="坂本路裕">坂本路裕</option>
-        <option value="高橋洋毅">高橋洋毅</option>
-        <option value="長谷川隆裕">長谷川隆裕</option>
-        <option value="村上公章">村上公章</option>
-        <option value="__other__">その他</option>
-      </select>
-      <div class="field-gap" id="nameOtherWrap" style="display:none">
-        <input type="text" id="nameOther" placeholder="お名前を入力" maxlength="30">
-      </div>
-      <div class="lock-badge" id="lockBadge">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="8" height="6" rx="1" stroke="#D94040" stroke-width="1.3"/><path d="M4 5V3.5a2 2 0 0 1 4 0V5" stroke="#D94040" stroke-width="1.3"/></svg>
-        このデバイスで別の担当者が入力中です
-      </div>
-    </div>
-  </div>
 
-  <!-- ② 日付 -->
-  <div class="section locked" id="sec-date">
-    <div class="section-header">
-      <div class="section-num" id="num-date">2</div>
-      <span class="section-label">日付</span>
+    <!-- ① 名前 -->
+    <div class="section" id="sec-name">
+      <div class="section-header">
+        <div class="section-num" id="num-name">1</div>
+        <span class="section-label">名前</span>
+        <span class="section-required">必須</span>
+      </div>
+      <div class="section-body">
+        <select id="nameSelect">
+          <option value="">選択してください</option>
+          <option value="雨宮優">雨宮優</option>
+          <option value="荒金亮太">荒金亮太</option>
+          <option value="坂本路裕">坂本路裕</option>
+          <option value="高橋洋毅">高橋洋毅</option>
+          <option value="長谷川隆裕">長谷川隆裕</option>
+          <option value="村上公章">村上公章</option>
+          <option value="__other__">その他</option>
+        </select>
+        <div class="field-gap" id="nameOtherWrap" style="display:none">
+          <input type="text" id="nameOther" placeholder="お名前を入力" maxlength="30">
+        </div>
+        <div class="lock-badge" id="lockBadge">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="8" height="6" rx="1" stroke="#D94040" stroke-width="1.3"/><path d="M4 5V3.5a2 2 0 0 1 4 0V5" stroke="#D94040" stroke-width="1.3"/></svg>
+          このデバイスで別の担当者が入力中です
+        </div>
+      </div>
     </div>
-    <div class="section-body">
-      <input type="date" id="dateInput">
-    </div>
-  </div>
 
-  <!-- ③ 出発チェック -->
-  <div class="section locked" id="sec-depart">
-    <div class="section-header">
-      <div class="section-num" id="num-depart">3</div>
-      <span class="section-label">出発時チェック</span>
-      <span class="section-required">全項目必須</span>
-    </div>
-    <div class="section-body">
-      <div class="check-group">
-        <label class="check-item" id="chk-sake">
-          <input type="checkbox" id="checkSake">
-          <div class="check-box"></div>
-          <span class="check-text">酒気を帯びていません</span>
-        </label>
-        <label class="check-item" id="chk-dest">
-          <input type="checkbox" id="checkDest">
-          <div class="check-box"></div>
-          <span class="check-text">本日の行き先を確認しました</span>
-        </label>
-        <label class="check-item" id="chk-slip">
-          <input type="checkbox" id="checkSlip">
-          <div class="check-box"></div>
-          <span class="check-text">横浜伝票を持ちました</span>
-        </label>
+    <!-- ② 日付 -->
+    <div class="section locked" id="sec-date">
+      <div class="section-header">
+        <div class="section-num" id="num-date">2</div>
+        <span class="section-label">日付</span>
+      </div>
+      <div class="section-body">
+        <input type="date" id="dateInput">
       </div>
     </div>
-  </div>
 
-  <!-- ④ 到着予想時刻（横浜） -->
-  <div class="section locked" id="sec-yoko">
-    <div class="section-header">
-      <div class="section-num" id="num-yoko">4</div>
-      <span class="section-label">到着予想時刻（横浜）</span>
-    </div>
-    <div class="section-body">
-      <div class="radio-group" id="yokoRadio">
-        <div class="radio-item" data-val="~11:30" onclick="selectRadio('yoko',this)">
-          <div class="radio-dot"></div><span>～11:30</span>
-        </div>
-        <div class="radio-item" data-val="11:30~11:45" onclick="selectRadio('yoko',this)">
-          <div class="radio-dot"></div><span>11:30～11:45</span>
-        </div>
-        <div class="radio-item" data-val="11:45~" onclick="selectRadio('yoko',this)">
-          <div class="radio-dot"></div><span>11:45～</span>
-        </div>
-        <div class="radio-item" data-val="横浜なし" onclick="selectRadio('yoko',this)">
-          <div class="radio-dot"></div><span>横浜なし</span>
-        </div>
+    <!-- ③ 出発チェック -->
+    <div class="section locked" id="sec-depart">
+      <div class="section-header">
+        <div class="section-num" id="num-depart">3</div>
+        <span class="section-label">出発時チェック</span>
+        <span class="section-required">全項目必須</span>
       </div>
-      <div class="time-extra" id="yokoTimeExtra">
-        <div class="time-prompt">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          到着予定時刻を入力してください
+      <div class="section-body">
+        <div class="check-group">
+          <label class="check-item" id="chk-sake">
+            <input type="checkbox" id="checkSake">
+            <div class="check-box"></div>
+            <span class="check-text">酒気を帯びていません</span>
+          </label>
+          <label class="check-item" id="chk-dest">
+            <input type="checkbox" id="checkDest">
+            <div class="check-box"></div>
+            <span class="check-text">本日の行き先を確認しました</span>
+          </label>
+          <label class="check-item" id="chk-slip">
+            <input type="checkbox" id="checkSlip">
+            <div class="check-box"></div>
+            <span class="check-text">横浜伝票を持ちました</span>
+          </label>
         </div>
-        <input type="time" id="yokoTime">
-      </div>
-      <div class="helper-text" id="yokoMailHint" style="display:none;color:var(--danger)">
-        ⚠ 11:45～のため、メールが送信されます
       </div>
     </div>
-  </div>
+  </div><!-- /椎名町出発時 -->
 
-  <!-- ⑤ 横浜伝票（写真） -->
-  <div class="section locked" id="sec-photo">
-    <div class="section-header">
-      <div class="section-num" id="num-photo">5</div>
-      <span class="section-label">横浜伝票（写真）</span>
+  <!-- ══ 三軒茶屋出発時 ══ -->
+  <div class="timing-group">
+    <div class="timing-label">
+      <span class="timing-label-icon">🚌</span>
+      <span class="timing-label-text">三軒茶屋 出発時</span>
+      <div class="timing-label-line"></div>
     </div>
-    <div class="section-body">
-      <div class="camera-area">
-        <input type="file" accept="image/*" capture="environment" id="cameraInput" style="display:none">
-        <button class="btn-camera" id="btnCamera" onclick="triggerCamera()">
-          <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 2L5.5 4H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.5L13 2H7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-            <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-          写真を撮影する
-        </button>
-        <div class="photo-preview" id="photoPreview">
-          <img id="photoImg" src="" alt="伝票写真">
-          <div class="photo-preview-label" id="photoLabel"></div>
-          <button class="btn-retake" onclick="retakePhoto()">撮り直す</button>
-        </div>
-        <p class="helper-text">横浜なしを選択した場合はスキップできます</p>
-      </div>
-    </div>
-  </div>
 
-  <!-- ⑥ 到着予想時刻（秋葉原） -->
-  <div class="section locked" id="sec-akiba">
-    <div class="section-header">
-      <div class="section-num" id="num-akiba">6</div>
-      <span class="section-label">到着予想時刻（秋葉原）</span>
-    </div>
-    <div class="section-body">
-      <div class="radio-group" id="akibaRadio">
-        <div class="radio-item" data-val="~13:00" onclick="selectRadio('akiba',this)">
-          <div class="radio-dot"></div><span>～13:00</span>
+    <!-- ④ 到着予想時刻（横浜） -->
+    <div class="section locked" id="sec-yoko">
+      <div class="section-header">
+        <div class="section-num" id="num-yoko">4</div>
+        <span class="section-label">到着予想時刻（横浜）</span>
+      </div>
+      <div class="section-body">
+        <div class="radio-group" id="yokoRadio">
+          <div class="radio-item" data-val="~11:30" onclick="selectRadio('yoko',this)">
+            <div class="radio-dot"></div><span>～11:30</span>
+          </div>
+          <div class="radio-item" data-val="11:30~11:45" onclick="selectRadio('yoko',this)">
+            <div class="radio-dot"></div><span>11:30～11:45</span>
+          </div>
+          <div class="radio-item" data-val="11:45~" onclick="selectRadio('yoko',this)">
+            <div class="radio-dot"></div><span>11:45～</span>
+          </div>
+          <div class="radio-item" data-val="横浜なし" onclick="selectRadio('yoko',this)">
+            <div class="radio-dot"></div><span>横浜なし</span>
+          </div>
         </div>
-        <div class="radio-item" data-val="13:00~13:30" onclick="selectRadio('akiba',this)">
-          <div class="radio-dot"></div><span>13:00～13:30</span>
+        <div class="time-extra" id="yokoTimeExtra">
+          <div class="time-prompt">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            到着予定時刻を入力してください
+          </div>
+          <input type="time" id="yokoTime">
         </div>
-        <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('akiba',this)">
-          <div class="radio-dot"></div><span>13:30～14:00</span>
-        </div>
-        <div class="radio-item" data-val="14:00~" onclick="selectRadio('akiba',this)">
-          <div class="radio-dot"></div><span>14:00～</span>
-        </div>
-        <div class="radio-item" data-val="秋葉原なし" onclick="selectRadio('akiba',this)">
-          <div class="radio-dot"></div><span>秋葉原なし</span>
+        <div class="helper-text" id="yokoMailHint" style="display:none;color:var(--danger)">
+          ⚠ 11:45～のため、メールが送信されます
         </div>
       </div>
-      <div class="time-extra" id="akibaTimeExtra">
-        <div class="time-prompt">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          到着予定時刻を入力してください
-        </div>
-        <input type="time" id="akibaTime">
-      </div>
     </div>
-  </div>
+  </div><!-- /三軒茶屋出発時 -->
 
-  <!-- ⑦ 到着予想時刻（椎名町） -->
-  <div class="section locked" id="sec-shii">
-    <div class="section-header">
-      <div class="section-num" id="num-shii">7</div>
-      <span class="section-label">到着予想時刻（椎名町）</span>
+  <!-- ══ 横浜出発時 ══ -->
+  <div class="timing-group">
+    <div class="timing-label">
+      <span class="timing-label-icon">🚌</span>
+      <span class="timing-label-text">横浜 出発時</span>
+      <div class="timing-label-line"></div>
     </div>
-    <div class="section-body">
-      <div class="radio-group" id="shiiRadio">
-        <div class="radio-item" data-val="~13:30" onclick="selectRadio('shii',this)">
-          <div class="radio-dot"></div><span>～13:30</span>
-        </div>
-        <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('shii',this)">
-          <div class="radio-dot"></div><span>13:30～14:00</span>
-        </div>
-        <div class="radio-item" data-val="14:00~14:30" onclick="selectRadio('shii',this)">
-          <div class="radio-dot"></div><span>14:00～14:30</span>
-        </div>
-        <div class="radio-item" data-val="14:30~15:00" onclick="selectRadio('shii',this)">
-          <div class="radio-dot"></div><span>14:30～15:00</span>
-        </div>
-        <div class="radio-item" data-val="15:00~" onclick="selectRadio('shii',this)">
-          <div class="radio-dot"></div><span>15:00～</span>
+
+    <!-- ⑤ 横浜伝票（写真） -->
+    <div class="section locked" id="sec-photo">
+      <div class="section-header">
+        <div class="section-num" id="num-photo">5</div>
+        <span class="section-label">横浜伝票（写真）</span>
+      </div>
+      <div class="section-body">
+        <div class="camera-area">
+          <input type="file" accept="image/*" capture="environment" id="cameraInput" style="display:none">
+          <button class="btn-camera" id="btnCamera" onclick="triggerCamera()">
+            <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2L5.5 4H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.5L13 2H7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            写真を撮影する
+          </button>
+          <div class="photo-preview" id="photoPreview">
+            <img id="photoImg" src="" alt="伝票写真">
+            <div class="photo-preview-label" id="photoLabel"></div>
+            <button class="btn-retake" onclick="retakePhoto()">撮り直す</button>
+          </div>
+          <p class="helper-text">横浜なしを選択した場合はスキップできます</p>
         </div>
       </div>
-      <div class="time-extra" id="shiiTimeExtra">
-        <div class="time-prompt">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          到着予定時刻を入力してください
+    </div>
+
+    <!-- ⑥ 到着予想時刻（秋葉原） -->
+    <div class="section locked" id="sec-akiba">
+      <div class="section-header">
+        <div class="section-num" id="num-akiba">6</div>
+        <span class="section-label">到着予想時刻（秋葉原）</span>
+      </div>
+      <div class="section-body">
+        <div class="radio-group" id="akibaRadio">
+          <div class="radio-item" data-val="~13:00" onclick="selectRadio('akiba',this)">
+            <div class="radio-dot"></div><span>～13:00</span>
+          </div>
+          <div class="radio-item" data-val="13:00~13:30" onclick="selectRadio('akiba',this)">
+            <div class="radio-dot"></div><span>13:00～13:30</span>
+          </div>
+          <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('akiba',this)">
+            <div class="radio-dot"></div><span>13:30～14:00</span>
+          </div>
+          <div class="radio-item" data-val="14:00~" onclick="selectRadio('akiba',this)">
+            <div class="radio-dot"></div><span>14:00～</span>
+          </div>
+          <div class="radio-item" data-val="秋葉原なし" onclick="selectRadio('akiba',this)">
+            <div class="radio-dot"></div><span>秋葉原なし</span>
+          </div>
         </div>
-        <input type="time" id="shiiTime">
+        <div class="time-extra" id="akibaTimeExtra">
+          <div class="time-prompt">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            到着予定時刻を入力してください
+          </div>
+          <input type="time" id="akibaTime">
+        </div>
       </div>
     </div>
-  </div>
+  </div><!-- /横浜出発時 -->
+
+  <!-- ══ 秋葉原出発時 ══ -->
+  <div class="timing-group">
+    <div class="timing-label">
+      <span class="timing-label-icon">🚌</span>
+      <span class="timing-label-text">秋葉原 出発時</span>
+      <div class="timing-label-line"></div>
+    </div>
+
+    <!-- ⑦ 到着予想時刻（椎名町） -->
+    <div class="section locked" id="sec-shii">
+      <div class="section-header">
+        <div class="section-num" id="num-shii">7</div>
+        <span class="section-label">到着予想時刻（椎名町）</span>
+      </div>
+      <div class="section-body">
+        <div class="radio-group" id="shiiRadio">
+          <div class="radio-item" data-val="~13:30" onclick="selectRadio('shii',this)">
+            <div class="radio-dot"></div><span>～13:30</span>
+          </div>
+          <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('shii',this)">
+            <div class="radio-dot"></div><span>13:30～14:00</span>
+          </div>
+          <div class="radio-item" data-val="14:00~14:30" onclick="selectRadio('shii',this)">
+            <div class="radio-dot"></div><span>14:00～14:30</span>
+          </div>
+          <div class="radio-item" data-val="14:30~15:00" onclick="selectRadio('shii',this)">
+            <div class="radio-dot"></div><span>14:30～15:00</span>
+          </div>
+          <div class="radio-item" data-val="15:00~" onclick="selectRadio('shii',this)">
+            <div class="radio-dot"></div><span>15:00～</span>
+          </div>
+        </div>
+        <div class="time-extra" id="shiiTimeExtra">
+          <div class="time-prompt">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            到着予定時刻を入力してください
+          </div>
+          <input type="time" id="shiiTime">
+        </div>
+      </div>
+    </div>
+  </div><!-- /秋葉原出発時 -->
 
   <!-- Submit -->
   <div class="submit-area">
@@ -775,6 +854,52 @@ function saveToLocal() {
   if (photo) {
     try { localStorage.setItem(key + '_photo', photo); } catch(e) {}
   }
+  // GASにも都度保存（写真なし・非同期・エラーは握りつぶす）
+  autoSaveToGAS();
+}
+
+// ─── GAS自動保存（写真なし・途中経過） ───────────────
+let _autoSaveTimer = null;
+function autoSaveToGAS() {
+  // 名前と日付がないと保存できない
+  if (!state.name || !state.date) return;
+  // 連続入力時はデバウンス（1.5秒待つ）
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer = setTimeout(async () => {
+    const sendYokoMail = (state.yokoArrival === '11:45~');
+    const payload = {
+      action: 'autosave',
+      name: state.name,
+      date: state.date,
+      checkSake: state.checkSake,
+      checkDest: state.checkDest,
+      checkSlip: state.checkSlip,
+      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+      yokoSendMail: sendYokoMail,
+      yokoMailTime: sendYokoMail ? state.yokoTime : '',
+      photo: '',        // 自動保存では写真は送らない
+      photoName: state.photoName || '',
+      akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
+      shiiArrival: state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : ''),
+      token: state.token,
+    };
+    try {
+      const formData = new FormData();
+      formData.append('payload', JSON.stringify(payload));
+      await fetch(GAS_URL, { method: 'POST', body: formData });
+      // 保存インジケーターをチラ見せ
+      showSaveIndicator();
+    } catch(e) {
+      // 自動保存失敗は無視（LocalStorageに残っているので問題なし）
+    }
+  }, 1500);
+}
+
+function showSaveIndicator() {
+  const el = document.getElementById('saveIndicator');
+  if (!el) return;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1800);
 }
 
 function loadFromLocal() {
@@ -1191,9 +1316,14 @@ async function submitForm() {
   };
 
   try {
+    // GASはCORSの制約でJSON bodyを受け付けないため
+    // payloadをJSONにしてformパラメータとして送る
+    const formData = new FormData();
+    formData.append('payload', JSON.stringify(payload));
+
     const res = await fetch(GAS_URL, {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: formData,
     });
     const json = await res.json();
     hideLoading();
