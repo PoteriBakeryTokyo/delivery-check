@@ -568,7 +568,12 @@
           <option value="__other__">その他</option>
         </select>
         <div class="field-gap" id="nameOtherWrap" style="display:none">
-          <input type="text" id="nameOther" placeholder="お名前を入力" maxlength="30">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <label for="nameOther" style="font-size:12px;font-weight:700;color:var(--text-sub)">お名前</label>
+            <span style="font-size:10px;color:var(--danger);font-weight:700;background:var(--danger-light);border:1px solid var(--danger);border-radius:3px;padding:1px 6px;">必須</span>
+          </div>
+          <input type="text" id="nameOther" placeholder="お名前を入力してください" maxlength="30">
+          <p class="helper-text" id="nameOtherError" style="color:var(--danger);display:none;margin-top:5px">⚠ お名前を入力してください</p>
         </div>
         <div class="lock-badge" id="lockBadge">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="8" height="6" rx="1" stroke="#D94040" stroke-width="1.3"/><path d="M4 5V3.5a2 2 0 0 1 4 0V5" stroke="#D94040" stroke-width="1.3"/></svg>
@@ -884,10 +889,7 @@ function autoSaveToGAS() {
       token: state.token,
     };
     try {
-      const formData = new FormData();
-      formData.append('payload', JSON.stringify(payload));
-      await fetch(GAS_URL, { method: 'POST', body: formData });
-      // 保存インジケーターをチラ見せ
+      await postToGAS(payload);
       showSaveIndicator();
     } catch(e) {
       // 自動保存失敗は無視（LocalStorageに残っているので問題なし）
@@ -1000,15 +1002,38 @@ document.getElementById('nameSelect').addEventListener('change', function() {
 
 document.getElementById('nameOther').addEventListener('input', function() {
   state.name = this.value.trim();
-  if (state.name) onNameConfirm();
-  else updateUI();
+  const errEl = document.getElementById('nameOtherError');
+  if (state.name) {
+    errEl.style.display = 'none';
+    this.style.borderColor = '';
+    onNameConfirm();
+  } else {
+    errEl.style.display = 'block';
+    this.style.borderColor = 'var(--danger)';
+    updateUI();
+  }
+});
+
+document.getElementById('nameOther').addEventListener('blur', function() {
+  if (!this.value.trim()) {
+    document.getElementById('nameOtherError').style.display = 'block';
+    this.style.borderColor = 'var(--danger)';
+  }
 });
 
 function onNameConfirm() {
-  // 名前と今日の日付でデータを探す
   const date = document.getElementById('dateInput').value || todayStr();
   state.date = date;
   const loaded = loadDataForNameDate(state.name, date);
+  if (!loaded && GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
+    // LocalStorageにない場合はGASから復元を試みる（LINEブラウザ対策）
+    showToast('データを確認中...');
+    loadFromGAS(state.name, date).then(gasLoaded => {
+      if (gasLoaded) showToast('クラウドからデータを復元しました');
+      updateUI();
+      updateProgress();
+    });
+  }
   updateUI();
   updateProgress();
 }
@@ -1289,6 +1314,58 @@ function updateProgress() {
 }
 
 // ═══════════════════════════════════════════
+// GAS通信共通関数
+// ═══════════════════════════════════════════
+async function postToGAS(payload) {
+  const params = new URLSearchParams();
+  params.append('payload', JSON.stringify(payload));
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString(),
+    redirect: 'follow',
+  });
+  // GASがHTMLを返した場合（リダイレクト失敗など）を検出
+  const text = await res.text();
+  if (text.trim().startsWith('<')) {
+    throw new Error('GASからHTMLが返されました。デプロイURLとアクセス設定を確認してください。');
+  }
+  return JSON.parse(text);
+}
+
+// ═══════════════════════════════════════════
+// GASからデータ復元（LINEブラウザ対応）
+// ═══════════════════════════════════════════
+async function loadFromGAS(name, date) {
+  if (GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') return false;
+  try {
+    const res = await fetch(
+      `${GAS_URL}?action=load&name=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}`,
+      { redirect: 'follow' }
+    );
+    const text = await res.text();
+    if (text.trim().startsWith('<')) return false;
+    const json = JSON.parse(text);
+    if (json.status !== 'ok' || !json.data) return false;
+    const d = json.data;
+    // stateに反映（LocalStorageにないフィールドを補完）
+    if (d.checkSake)     { state.checkSake = true;  updateCheckStyle('chk-sake', true); document.getElementById('checkSake').checked = true; }
+    if (d.checkDest)     { state.checkDest = true;  updateCheckStyle('chk-dest', true); document.getElementById('checkDest').checked = true; }
+    if (d.checkSlip)     { state.checkSlip = true;  updateCheckStyle('chk-slip', true); document.getElementById('checkSlip').checked = true; }
+    if (d.yokoArrival)   { state.yokoArrival = d.yokoArrival;   setRadioDOM('yoko',  d.yokoArrival); }
+    if (d.yokoTime)      { state.yokoTime   = d.yokoTime;   document.getElementById('yokoTime').value  = d.yokoTime; }
+    if (d.akibaArrival)  { state.akibaArrival = d.akibaArrival; setRadioDOM('akiba', d.akibaArrival); }
+    if (d.akibaTime)     { state.akibaTime  = d.akibaTime;  document.getElementById('akibaTime').value = d.akibaTime; }
+    if (d.shiiArrival)   { state.shiiArrival = d.shiiArrival;   setRadioDOM('shii',  d.shiiArrival); }
+    if (d.shiiTime)      { state.shiiTime   = d.shiiTime;   document.getElementById('shiiTime').value  = d.shiiTime; }
+    if (d.photoName)     { state.photoName  = d.photoName; }
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════════
 // SUBMIT
 // ═══════════════════════════════════════════
 async function submitForm() {
@@ -1316,16 +1393,7 @@ async function submitForm() {
   };
 
   try {
-    // GASはCORSの制約でJSON bodyを受け付けないため
-    // payloadをJSONにしてformパラメータとして送る
-    const formData = new FormData();
-    formData.append('payload', JSON.stringify(payload));
-
-    const res = await fetch(GAS_URL, {
-      method: 'POST',
-      body: formData,
-    });
-    const json = await res.json();
+    const json = await postToGAS(payload);
     hideLoading();
     if (json.status === 'ok') {
       showStatus('success', '✓ 送信完了しました');
