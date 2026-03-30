@@ -1324,8 +1324,8 @@ async function postToGAS(payload) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: params.toString(),
     redirect: 'follow',
+    credentials: 'omit',   // ← Googleアカウントのログイン情報を送らない → /u/N/ リダイレクト防止
   });
-  // GASがHTMLを返した場合（リダイレクト失敗など）を検出
   const text = await res.text();
   if (text.trim().startsWith('<')) {
     throw new Error('GASからHTMLが返されました。デプロイURLとアクセス設定を確認してください。');
@@ -1341,14 +1341,16 @@ async function loadFromGAS(name, date) {
   try {
     const res = await fetch(
       `${GAS_URL}?action=load&name=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}`,
-      { redirect: 'follow' }
+      {
+        redirect: 'follow',
+        credentials: 'omit',  // ← 同上
+      }
     );
     const text = await res.text();
     if (text.trim().startsWith('<')) return false;
     const json = JSON.parse(text);
     if (json.status !== 'ok' || !json.data) return false;
     const d = json.data;
-    // stateに反映（LocalStorageにないフィールドを補完）
     if (d.checkSake)     { state.checkSake = true;  updateCheckStyle('chk-sake', true); document.getElementById('checkSake').checked = true; }
     if (d.checkDest)     { state.checkDest = true;  updateCheckStyle('chk-dest', true); document.getElementById('checkDest').checked = true; }
     if (d.checkSlip)     { state.checkSlip = true;  updateCheckStyle('chk-slip', true); document.getElementById('checkSlip').checked = true; }
