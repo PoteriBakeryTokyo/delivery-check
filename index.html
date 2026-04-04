@@ -709,9 +709,6 @@
           </div>
           <input type="time" id="yokoTime">
         </div>
-        <div class="helper-text" id="yokoMailHint" style="display:none;color:var(--danger)">
-          ⚠ 11:45～のため、メールが送信されます
-        </div>
       </div>
     </div>
   </div><!-- /三軒茶屋出発時 -->
@@ -1273,7 +1270,6 @@ function resetFormFields() {
   document.getElementById('yokoTime').value = '';
   document.getElementById('akibaTime').value = '';
   document.getElementById('shiiTime').value = '';
-  document.getElementById('yokoMailHint').style.display = 'none';
 
   // 写真リセット
   state.photo = null; state.photoName = '';
@@ -1323,16 +1319,12 @@ function selectRadio(group, el) {
   if (group === 'yoko') {
     state.yokoArrival = val;
     const extra = document.getElementById('yokoTimeExtra');
-    const hint = document.getElementById('yokoMailHint');
     if (val === '11:45~') {
       extra.classList.add('visible');
-      hint.style.display = 'block';
     } else {
       extra.classList.remove('visible');
-      hint.style.display = 'none';
       state.yokoTime = '';
     }
-    // 横浜なし → 写真セクション非活性化
     document.getElementById('btnCamera').disabled = (val === '横浜なし');
     if (val === '横浜なし') state.photo = null;
   } else if (group === 'akiba') {
@@ -1362,7 +1354,6 @@ function setRadioDOM(group, val) {
   // extra表示
   if (group === 'yoko' && val === '11:45~') {
     document.getElementById('yokoTimeExtra').classList.add('visible');
-    document.getElementById('yokoMailHint').style.display = 'block';
   }
   if (group === 'akiba' && val === '14:00~') document.getElementById('akibaTimeExtra').classList.add('visible');
   if (group === 'shii' && val === '15:00~') document.getElementById('shiiTimeExtra').classList.add('visible');
