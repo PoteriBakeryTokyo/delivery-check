@@ -382,11 +382,54 @@
     font-family: 'Noto Sans JP', sans-serif;
   }
 
-  /* ─── Submit ─── */
-  .submit-area {
-    margin-top: 20px;
-    padding: 0 0 8px;
+  /* ─── Departure buttons ─── */
+  .depart-btn-area {
+    margin-top: 14px;
+    padding: 0 2px;
   }
+  .btn-depart {
+    width: 100%;
+    padding: 18px 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.15s, transform 0.1s, opacity 0.2s;
+    background: var(--text);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+  }
+  .btn-depart:hover  { background: #333; }
+  .btn-depart:active { transform: scale(0.98); }
+  .btn-depart:disabled {
+    background: var(--disabled);
+    color: var(--disabled-text);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-depart.done {
+    background: var(--success);
+    box-shadow: 0 3px 10px rgba(42,122,75,0.25);
+    pointer-events: none;
+  }
+  .btn-depart .depart-icon { font-size: 20px; line-height: 1; }
+  .depart-status {
+    margin-top: 8px;
+    font-size: 12px;
+    text-align: center;
+    color: var(--success);
+    font-weight: 500;
+    display: none;
+  }
+  .depart-status.show { display: block; }
 
   /* ─── Timing group ─── */
   .timing-group {
@@ -622,6 +665,14 @@
     </div>
   </div><!-- /椎名町出発時 -->
 
+  <!-- 椎名町出発ボタン -->
+  <div class="depart-btn-area">
+    <button class="btn-depart" id="btnDepartShii" onclick="departShii()" disabled>
+      <span class="depart-icon">🚌</span>椎名町 出発
+    </button>
+    <div class="depart-status" id="statusShii"></div>
+  </div>
+
   <!-- ══ 三軒茶屋出発時 ══ -->
   <div class="timing-group">
     <div class="timing-label">
@@ -664,6 +715,14 @@
       </div>
     </div>
   </div><!-- /三軒茶屋出発時 -->
+
+  <!-- 三軒茶屋出発ボタン -->
+  <div class="depart-btn-area">
+    <button class="btn-depart" id="btnDepartSancha" onclick="departSancha()" disabled>
+      <span class="depart-icon">🚌</span>三軒茶屋 出発
+    </button>
+    <div class="depart-status" id="statusSancha"></div>
+  </div>
 
   <!-- ══ 横浜出発時 ══ -->
   <div class="timing-group">
@@ -734,6 +793,14 @@
     </div>
   </div><!-- /横浜出発時 -->
 
+  <!-- 横浜出発ボタン -->
+  <div class="depart-btn-area">
+    <button class="btn-depart" id="btnDepartYoko" onclick="departYoko()" disabled>
+      <span class="depart-icon">🚌</span>横浜 出発
+    </button>
+    <div class="depart-status" id="statusYoko"></div>
+  </div>
+
   <!-- ══ 秋葉原出発時 ══ -->
   <div class="timing-group">
     <div class="timing-label">
@@ -777,14 +844,14 @@
     </div>
   </div><!-- /秋葉原出発時 -->
 
-  <!-- Submit -->
-  <div class="submit-area">
-    <button class="btn-submit" id="btnSubmit" onclick="submitForm()" disabled>
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      送信する
+  <!-- 秋葉原出発ボタン（最終） -->
+  <div class="depart-btn-area" style="margin-bottom: 8px;">
+    <button class="btn-depart" id="btnDepartAkiba" onclick="departAkiba()" disabled>
+      <span class="depart-icon">🚌</span>秋葉原 出発
     </button>
-    <div class="status-msg" id="statusMsg"></div>
+    <div class="depart-status" id="statusAkiba"></div>
   </div>
+  <div class="status-msg" id="statusMsg" style="margin-top:10px"></div>
 
 </main>
 
@@ -805,14 +872,18 @@ let state = {
   checkSlip: false,
   yokoArrival: '',
   yokoTime: '',
-  photo: null,       // base64
+  photo: null,
   photoName: '',
   akibaArrival: '',
   akibaTime: '',
   shiiArrival: '',
   shiiTime: '',
-  token: '',         // このデバイス固有の編集トークン
+  token: '',
   submitted: false,
+  departedShii: false,
+  departedSancha: false,
+  departedYoko: false,
+  departedAkiba: false,
 };
 
 // ═══════════════════════════════════════════
@@ -852,49 +923,12 @@ function saveToLocal() {
   if (!state.name || !state.date) return;
   const key = storageKey(state.name, state.date);
   const data = { ...state, savedAt: Date.now() };
-  // photoはLocalStorageが重くなるため分割保存
   const photo = data.photo;
   delete data.photo;
   localStorage.setItem(key, JSON.stringify(data));
   if (photo) {
     try { localStorage.setItem(key + '_photo', photo); } catch(e) {}
   }
-  // GASにも都度保存（写真なし・非同期・エラーは握りつぶす）
-  autoSaveToGAS();
-}
-
-// ─── GAS自動保存（写真なし・途中経過） ───────────────
-let _autoSaveTimer = null;
-function autoSaveToGAS() {
-  // 名前と日付がないと保存できない
-  if (!state.name || !state.date) return;
-  // 連続入力時はデバウンス（1.5秒待つ）
-  clearTimeout(_autoSaveTimer);
-  _autoSaveTimer = setTimeout(async () => {
-    const sendYokoMail = (state.yokoArrival === '11:45~');
-    const payload = {
-      action: 'autosave',
-      name: state.name,
-      date: state.date,
-      checkSake: state.checkSake,
-      checkDest: state.checkDest,
-      checkSlip: state.checkSlip,
-      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-      yokoSendMail: sendYokoMail,
-      yokoMailTime: sendYokoMail ? state.yokoTime : '',
-      photo: '',        // 自動保存では写真は送らない
-      photoName: state.photoName || '',
-      akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
-      shiiArrival: state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : ''),
-      token: state.token,
-    };
-    try {
-      await postToGAS(payload);
-      showSaveIndicator();
-    } catch(e) {
-      // 自動保存失敗は無視（LocalStorageに残っているので問題なし）
-    }
-  }, 1500);
 }
 
 function showSaveIndicator() {
@@ -902,6 +936,143 @@ function showSaveIndicator() {
   if (!el) return;
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+// ═══════════════════════════════════════════
+// 出発ボタン処理
+// ═══════════════════════════════════════════
+
+// ① 椎名町出発
+async function departShii() {
+  const btn = document.getElementById('btnDepartShii');
+  const statusEl = document.getElementById('statusShii');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+  const payload = {
+    action: 'autosave',
+    name: state.name, date: state.date,
+    checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+    yokoArrival: '', yokoSendMail: false, yokoMailTime: '',
+    photo: '', photoName: '',
+    akibaArrival: '', shiiArrival: '', token: state.token,
+  };
+  try {
+    await postToGAS(payload);
+    state.departedShii = true;
+    saveToLocal();
+    btn.innerHTML = '<span class="depart-icon">✓</span>椎名町 出発済';
+    btn.classList.add('done');
+    statusEl.textContent = '✓ 記録しました';
+    statusEl.classList.add('show');
+    showSaveIndicator();
+    updateUI(); updateProgress();
+  } catch(e) {
+    btn.innerHTML = '<span class="depart-icon">🚌</span>椎名町 出発';
+    btn.disabled = false;
+    showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ② 三軒茶屋出発
+async function departSancha() {
+  const btn = document.getElementById('btnDepartSancha');
+  const statusEl = document.getElementById('statusSancha');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+  const sendYokoMail = (state.yokoArrival === '11:45~');
+  const payload = {
+    action: 'autosave',
+    name: state.name, date: state.date,
+    checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+    yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+    yokoSendMail: sendYokoMail, yokoMailTime: sendYokoMail ? state.yokoTime : '',
+    photo: '', photoName: state.photoName || '',
+    akibaArrival: '', shiiArrival: '', token: state.token,
+  };
+  try {
+    await postToGAS(payload);
+    state.departedSancha = true;
+    saveToLocal();
+    btn.innerHTML = '<span class="depart-icon">✓</span>三軒茶屋 出発済';
+    btn.classList.add('done');
+    statusEl.textContent = sendYokoMail ? '✓ 記録・メール送信しました' : '✓ 記録しました';
+    statusEl.classList.add('show');
+    showSaveIndicator();
+    updateUI(); updateProgress();
+  } catch(e) {
+    btn.innerHTML = '<span class="depart-icon">🚌</span>三軒茶屋 出発';
+    btn.disabled = false;
+    showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ③ 横浜出発（写真アップロードあり）
+async function departYoko() {
+  const btn = document.getElementById('btnDepartYoko');
+  const statusEl = document.getElementById('statusYoko');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+  const payload = {
+    action: 'submit',
+    name: state.name, date: state.date,
+    checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+    yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+    yokoSendMail: false, yokoMailTime: '',
+    photo: state.photo || '', photoName: state.photoName || '',
+    akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
+    shiiArrival: '', token: state.token,
+  };
+  try {
+    await postToGAS(payload);
+    state.departedYoko = true;
+    saveToLocal();
+    btn.innerHTML = '<span class="depart-icon">✓</span>横浜 出発済';
+    btn.classList.add('done');
+    statusEl.textContent = '✓ 記録・写真保存しました';
+    statusEl.classList.add('show');
+    showSaveIndicator();
+    updateUI(); updateProgress();
+  } catch(e) {
+    btn.innerHTML = '<span class="depart-icon">🚌</span>横浜 出発';
+    btn.disabled = false;
+    showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ④ 秋葉原出発（最終）
+async function departAkiba() {
+  const btn = document.getElementById('btnDepartAkiba');
+  const statusEl = document.getElementById('statusAkiba');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+  const payload = {
+    action: 'submit',
+    name: state.name, date: state.date,
+    checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+    yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+    yokoSendMail: false, yokoMailTime: '',
+    photo: '', photoName: state.photoName || '',
+    akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
+    shiiArrival: state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : ''),
+    token: state.token,
+  };
+  try {
+    await postToGAS(payload);
+    state.departedAkiba = true;
+    state.submitted = true;
+    saveToLocal();
+    btn.innerHTML = '<span class="depart-icon">✓</span>秋葉原 出発済';
+    btn.classList.add('done');
+    statusEl.textContent = '✓ 全行程の記録が完了しました';
+    statusEl.classList.add('show');
+    showSaveIndicator();
+    showToast('お疲れさまでした！');
+    updateUI(); updateProgress();
+  } catch(e) {
+    btn.innerHTML = '<span class="depart-icon">🚌</span>秋葉原 出発';
+    btn.disabled = false;
+    showStatus('error', '通信エラー: ' + e.message);
+  }
 }
 
 function loadFromLocal() {
@@ -939,7 +1110,11 @@ function loadDataForNameDate(name, date) {
     state.akibaTime = saved.akibaTime || '';
     state.shiiArrival = saved.shiiArrival || '';
     state.shiiTime = saved.shiiTime || '';
-    state.submitted = saved.submitted || false;
+    state.submitted     = saved.submitted     || false;
+    state.departedShii  = saved.departedShii  || false;
+    state.departedSancha= saved.departedSancha|| false;
+    state.departedYoko  = saved.departedYoko  || false;
+    state.departedAkiba = saved.departedAkiba || false;
 
     // DOM反映
     document.getElementById('dateInput').value = state.date;
@@ -1025,14 +1200,18 @@ function onNameConfirm() {
   const date = document.getElementById('dateInput').value || todayStr();
   state.date = date;
   const loaded = loadDataForNameDate(state.name, date);
-  if (!loaded && GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
-    // LocalStorageにない場合はGASから復元を試みる（LINEブラウザ対策）
-    showToast('データを確認中...');
-    loadFromGAS(state.name, date).then(gasLoaded => {
-      if (gasLoaded) showToast('クラウドからデータを復元しました');
-      updateUI();
-      updateProgress();
-    });
+  if (!loaded) {
+    // この名前+日付のデータなし → リセット
+    resetFormFields();
+    state.date = date;
+    if (GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
+      showToast('データを確認中...');
+      loadFromGAS(state.name, date).then(gasLoaded => {
+        if (gasLoaded) showToast('クラウドからデータを復元しました');
+        updateUI();
+        updateProgress();
+      });
+    }
   }
   updateUI();
   updateProgress();
@@ -1042,15 +1221,73 @@ function onNameConfirm() {
 // DATE INPUT
 // ═══════════════════════════════════════════
 document.getElementById('dateInput').addEventListener('change', function() {
-  state.date = this.value;
-  document.getElementById('headerDate').textContent = formatDate(this.value);
+  const newDate = this.value;
+  document.getElementById('headerDate').textContent = formatDate(newDate);
+
   if (state.name) {
-    loadDataForNameDate(state.name, state.date);
+    // 新しい日付でLocalStorageにデータがあれば復元、なければリセット
+    const loaded = loadDataForNameDate(state.name, newDate);
+    if (!loaded) {
+      // 新しい日付 = 新しいレコード → 項目をリセット
+      resetFormFields();
+      state.date = newDate;
+      showToast('日付を変更しました。項目をリセットしました');
+      // GASからも確認
+      if (GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
+        loadFromGAS(state.name, newDate).then(gasLoaded => {
+          if (gasLoaded) showToast('クラウドからデータを復元しました');
+          updateUI();
+          updateProgress();
+        });
+      }
+    }
+  } else {
+    state.date = newDate;
   }
+
   saveToLocal();
   updateUI();
   updateProgress();
 });
+
+function resetFormFields() {
+  // チェックボックスリセット
+  state.checkSake = false; state.checkDest = false; state.checkSlip = false;
+  document.getElementById('checkSake').checked = false;
+  document.getElementById('checkDest').checked = false;
+  document.getElementById('checkSlip').checked = false;
+  updateCheckStyle('chk-sake', false);
+  updateCheckStyle('chk-dest', false);
+  updateCheckStyle('chk-slip', false);
+
+  // ラジオリセット
+  state.yokoArrival = ''; state.yokoTime = '';
+  state.akibaArrival = ''; state.akibaTime = '';
+  state.shiiArrival = ''; state.shiiTime = '';
+  ['yokoRadio','akibaRadio','shiiRadio'].forEach(id => {
+    document.getElementById(id).querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
+  });
+  ['yokoTimeExtra','akibaTimeExtra','shiiTimeExtra'].forEach(id => {
+    document.getElementById(id).classList.remove('visible');
+  });
+  document.getElementById('yokoTime').value = '';
+  document.getElementById('akibaTime').value = '';
+  document.getElementById('shiiTime').value = '';
+  document.getElementById('yokoMailHint').style.display = 'none';
+
+  // 写真リセット
+  state.photo = null; state.photoName = '';
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('photoImg').src = '';
+  document.getElementById('cameraInput').value = '';
+  document.getElementById('btnCamera').disabled = false;
+
+  state.submitted = false;
+  state.departedShii = false;
+  state.departedSancha = false;
+  state.departedYoko = false;
+  state.departedAkiba = false;
+}
 
 // ═══════════════════════════════════════════
 // CHECKBOXES
@@ -1274,14 +1511,30 @@ function updateUI() {
   // セクションのロック/解除
   setSection('sec-date',   nameDone,   dateDone);
   setSection('sec-depart', nameDone && dateDone, departDone);
-  setSection('sec-yoko',   nameDone && dateDone && departDone, yokoDone);
-  setSection('sec-photo',  nameDone && dateDone && departDone && yokoDone, photoDone);
-  setSection('sec-akiba',  nameDone && dateDone && departDone && yokoDone && photoDone, akibaDone);
-  setSection('sec-shii',   nameDone && dateDone && departDone && yokoDone && photoDone && akibaDone, shiiDone);
+  setSection('sec-yoko',   state.departedShii, yokoDone);
+  setSection('sec-photo',  state.departedSancha, photoDone);
+  setSection('sec-akiba',  state.departedSancha, akibaDone);
+  setSection('sec-shii',   state.departedYoko, shiiDone);
 
-  // 送信ボタン
-  const allDone = nameDone && dateDone && departDone && yokoDone && photoDone && akibaDone && shiiDone;
-  document.getElementById('btnSubmit').disabled = !allDone;
+  // 出発ボタンの活性制御
+  updateDepartBtn('btnDepartShii',  nameDone && dateDone && departDone, state.departedShii,  '🚌', '椎名町 出発', '椎名町 出発済');
+  updateDepartBtn('btnDepartSancha', state.departedShii && yokoDone,    state.departedSancha,'🚌', '三軒茶屋 出発','三軒茶屋 出発済');
+  updateDepartBtn('btnDepartYoko',  state.departedSancha && photoDone && akibaDone, state.departedYoko, '🚌', '横浜 出発', '横浜 出発済');
+  updateDepartBtn('btnDepartAkiba', state.departedYoko && shiiDone,     state.departedAkiba, '🚌', '秋葉原 出発', '秋葉原 出発済');
+}
+
+function updateDepartBtn(id, canDepart, isDone, icon, label, doneLabel) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  if (isDone) {
+    btn.innerHTML = `<span class="depart-icon">✓</span>${doneLabel}`;
+    btn.classList.add('done');
+    btn.disabled = true;
+  } else {
+    btn.innerHTML = `<span class="depart-icon">${icon}</span>${label}`;
+    btn.classList.remove('done');
+    btn.disabled = !canDepart;
+  }
 }
 
 function setSection(id, unlocked, done) {
@@ -1307,7 +1560,10 @@ function setSection(id, unlocked, done) {
 // PROGRESS
 // ═══════════════════════════════════════════
 function updateProgress() {
-  const steps = [isNameDone(), isDateDone(), isDepartDone(), isYokoDone(), isPhotoDone(), isAkibaDone(), isShiiDone()];
+  const steps = [
+    isNameDone(), isDateDone(), isDepartDone(),
+    state.departedShii, state.departedSancha, state.departedYoko, state.departedAkiba
+  ];
   const done = steps.filter(Boolean).length;
   const pct = Math.round((done / steps.length) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
@@ -1368,50 +1624,6 @@ async function loadFromGAS(name, date) {
 }
 
 // ═══════════════════════════════════════════
-// SUBMIT
-// ═══════════════════════════════════════════
-async function submitForm() {
-  showLoading('送信中...');
-
-  // 横浜 11:45~ のメール送信フラグ
-  const sendYokoMail = (state.yokoArrival === '11:45~');
-  const yokoMailTime = sendYokoMail ? state.yokoTime : '';
-
-  const payload = {
-    action: 'submit',
-    name: state.name,
-    date: state.date,
-    checkSake: state.checkSake,
-    checkDest: state.checkDest,
-    checkSlip: state.checkSlip,
-    yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-    yokoSendMail: sendYokoMail,
-    yokoMailTime: yokoMailTime,
-    photo: state.photo || '',
-    photoName: state.photoName || '',
-    akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
-    shiiArrival: state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : ''),
-    token: state.token,
-  };
-
-  try {
-    const json = await postToGAS(payload);
-    hideLoading();
-    if (json.status === 'ok') {
-      showStatus('success', '✓ 送信完了しました');
-      state.submitted = true;
-      saveToLocal();
-      showToast('送信完了！');
-    } else {
-      showStatus('error', `エラー: ${json.message || '送信失敗'}`);
-    }
-  } catch(e) {
-    hideLoading();
-    showStatus('error', `通信エラー: ${e.message}`);
-  }
-}
-
-// ═══════════════════════════════════════════
 // UI HELPERS
 // ═══════════════════════════════════════════
 function showLoading(msg) {
@@ -1423,6 +1635,7 @@ function hideLoading() {
 }
 function showStatus(type, msg) {
   const el = document.getElementById('statusMsg');
+  if (!el) return;
   el.className = 'status-msg ' + type;
   el.textContent = msg;
 }
