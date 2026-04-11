@@ -1051,26 +1051,56 @@ async function departSancha() {
   }
 }
 
-// ③ 横浜出発（写真アップロードあり）
+// ③ 横浜出発（写真を並列アップロード → テキスト送信）
 async function departYoko() {
   const btn = document.getElementById('btnDepartYoko');
   const statusEl = document.getElementById('statusYoko');
   btn.disabled = true;
   btn.textContent = '送信中...';
-  const payload = {
-    action: 'submit',
-    name: state.name, date: state.date,
-    checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-    yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-    yokoSendMail: false, yokoMailTime: '',
-    photo: state.photo || '', photoName: state.photoName || '',
-    returnStatus: state.returnStatus || '',
-    returnPhoto: state.returnPhoto || '', returnPhotoName: state.returnPhotoName || '',
-    akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
-    shiiArrival: '', token: state.token,
-  };
+
   try {
-    await postToGAS(payload);
+    // ─ STEP1: 伝票写真・返品写真を並列アップロード
+    const uploads = [];
+    if (state.photo && state.photoName) {
+      uploads.push(postToGAS({
+        action: 'uploadphoto',
+        name: state.name, date: state.date,
+        photoType: 'slip',
+        photo: state.photo,
+        photoName: state.photoName,
+      }));
+    } else {
+      uploads.push(Promise.resolve(null));
+    }
+    if (state.returnPhoto && state.returnPhotoName) {
+      uploads.push(postToGAS({
+        action: 'uploadphoto',
+        name: state.name, date: state.date,
+        photoType: 'return',
+        photo: state.returnPhoto,
+        photoName: state.returnPhotoName,
+      }));
+    } else {
+      uploads.push(Promise.resolve(null));
+    }
+
+    // ─ STEP2: テキストデータ送信も並列で実行
+    const textPayload = postToGAS({
+      action: 'submit',
+      name: state.name, date: state.date,
+      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+      yokoSendMail: false, yokoMailTime: '',
+      photo: '', photoName: state.photoName || '',
+      returnStatus: state.returnStatus || '',
+      returnPhoto: '', returnPhotoName: state.returnPhotoName || '',
+      akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
+      shiiArrival: '', token: state.token,
+    });
+
+    // 全部同時に待つ
+    await Promise.all([...uploads, textPayload]);
+
     state.departedYoko = true;
     saveToLocal();
     btn.innerHTML = '<span class="depart-icon">✓</span>横浜 出発済';
@@ -1079,6 +1109,7 @@ async function departYoko() {
     statusEl.classList.add('show');
     showSaveIndicator();
     updateUI(); updateProgress();
+
   } catch(e) {
     btn.innerHTML = '<span class="depart-icon">🚌</span>横浜 出発';
     btn.disabled = false;
@@ -1466,8 +1497,8 @@ document.getElementById('shiiTime').addEventListener('change', function() {
 // ═══════════════════════════════════════════
 // CAMERA
 // ═══════════════════════════════════════════
-const PHOTO_MAX_PX   = 1280;   // 長辺の上限ピクセル
-const PHOTO_QUALITY  = 0.82;   // JPEG品質（0〜1）
+const PHOTO_MAX_PX   = 800;    // 長辺の上限ピクセル（縮小強化）
+const PHOTO_QUALITY  = 0.70;   // JPEG品質（縮小強化）
 
 function triggerCamera() {
   document.getElementById('cameraInput').click();
