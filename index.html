@@ -755,10 +755,51 @@
       </div>
     </div>
 
-    <!-- ⑥ 到着予想時刻（秋葉原） -->
+    <!-- ⑥ 返品の有無 -->
+    <div class="section locked" id="sec-return">
+      <div class="section-header">
+        <div class="section-num" id="num-return">6</div>
+        <span class="section-label">返品の有無</span>
+        <span class="section-required">必須</span>
+      </div>
+      <div class="section-body">
+        <div class="radio-group" id="returnRadio">
+          <div class="radio-item" data-val="なし" onclick="selectRadio('return',this)">
+            <div class="radio-dot"></div><span>なし</span>
+          </div>
+          <div class="radio-item" data-val="あり" onclick="selectRadio('return',this)">
+            <div class="radio-dot"></div><span>あり</span>
+          </div>
+        </div>
+        <!-- 返品写真（返品ありの場合のみ表示） -->
+        <div id="returnPhotoArea" style="display:none;margin-top:12px">
+          <div class="time-prompt">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            返品の写真を撮影してください（必須）
+          </div>
+          <div class="camera-area" style="margin-top:10px">
+            <input type="file" accept="image/*" capture="environment" id="returnCameraInput" style="display:none">
+            <button class="btn-camera" id="btnReturnCamera" onclick="triggerReturnCamera()">
+              <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 2L5.5 4H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.5L13 2H7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              返品写真を撮影する
+            </button>
+            <div class="photo-preview" id="returnPhotoPreview">
+              <img id="returnPhotoImg" src="" alt="返品写真">
+              <div class="photo-preview-label" id="returnPhotoLabel"></div>
+              <button class="btn-retake" onclick="retakeReturnPhoto()">撮り直す</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑦ 到着予想時刻（秋葉原） -->
     <div class="section locked" id="sec-akiba">
       <div class="section-header">
-        <div class="section-num" id="num-akiba">6</div>
+        <div class="section-num" id="num-akiba">7</div>
         <span class="section-label">到着予想時刻（秋葉原）</span>
       </div>
       <div class="section-body">
@@ -809,7 +850,7 @@
     <!-- ⑦ 到着予想時刻（椎名町） -->
     <div class="section locked" id="sec-shii">
       <div class="section-header">
-        <div class="section-num" id="num-shii">7</div>
+        <div class="section-num" id="num-shii">8</div>
         <span class="section-label">到着予想時刻（椎名町）</span>
       </div>
       <div class="section-body">
@@ -881,6 +922,9 @@ let state = {
   departedSancha: false,
   departedYoko: false,
   departedAkiba: false,
+  returnStatus: '',    // 'なし' or 'あり'
+  returnPhoto: null,
+  returnPhotoName: '',
 };
 
 // ═══════════════════════════════════════════
@@ -925,6 +969,10 @@ function saveToLocal() {
   localStorage.setItem(key, JSON.stringify(data));
   if (photo) {
     try { localStorage.setItem(key + '_photo', photo); } catch(e) {}
+  }
+  if (data.returnPhoto) {
+    try { localStorage.setItem(key + '_returnPhoto', data.returnPhoto); } catch(e) {}
+    delete data.returnPhoto;
   }
 }
 
@@ -1016,6 +1064,8 @@ async function departYoko() {
     yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
     yokoSendMail: false, yokoMailTime: '',
     photo: state.photo || '', photoName: state.photoName || '',
+    returnStatus: state.returnStatus || '',
+    returnPhoto: state.returnPhoto || '', returnPhotoName: state.returnPhotoName || '',
     akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
     shiiArrival: '', token: state.token,
   };
@@ -1112,6 +1162,17 @@ function loadDataForNameDate(name, date) {
     state.departedSancha= saved.departedSancha|| false;
     state.departedYoko  = saved.departedYoko  || false;
     state.departedAkiba = saved.departedAkiba || false;
+    state.returnStatus  = saved.returnStatus  || '';
+    state.returnPhotoName = saved.returnPhotoName || '';
+    if (state.returnStatus) setRadioDOM('return', state.returnStatus);
+    const returnPhoto = localStorage.getItem(key + '_returnPhoto') || null;
+    state.returnPhoto = returnPhoto;
+    if (returnPhoto) {
+      document.getElementById('returnPhotoImg').src = returnPhoto;
+      document.getElementById('returnPhotoLabel').textContent = state.returnPhotoName;
+      document.getElementById('returnPhotoPreview').style.display = 'block';
+      document.getElementById('returnPhotoArea').style.display = 'block';
+    }
 
     // DOM反映
     document.getElementById('dateInput').value = state.date;
@@ -1278,6 +1339,14 @@ function resetFormFields() {
   document.getElementById('cameraInput').value = '';
   document.getElementById('btnCamera').disabled = false;
 
+  // 返品リセット
+  state.returnStatus = ''; state.returnPhoto = null; state.returnPhotoName = '';
+  document.getElementById('returnRadio').querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
+  document.getElementById('returnPhotoArea').style.display = 'none';
+  document.getElementById('returnPhotoPreview').style.display = 'none';
+  document.getElementById('returnPhotoImg').src = '';
+  document.getElementById('returnCameraInput').value = '';
+
   state.submitted = false;
   state.departedShii = false;
   state.departedSancha = false;
@@ -1327,6 +1396,19 @@ function selectRadio(group, el) {
     }
     document.getElementById('btnCamera').disabled = (val === '横浜なし');
     if (val === '横浜なし') state.photo = null;
+  } else if (group === 'return') {
+    state.returnStatus = val;
+    const area = document.getElementById('returnPhotoArea');
+    if (val === 'あり') {
+      area.style.display = 'block';
+    } else {
+      area.style.display = 'none';
+      state.returnPhoto = null;
+      state.returnPhotoName = '';
+      document.getElementById('returnPhotoPreview').style.display = 'none';
+      document.getElementById('returnPhotoImg').src = '';
+      document.getElementById('returnCameraInput').value = '';
+    }
   } else if (group === 'akiba') {
     state.akibaArrival = val;
     const extra = document.getElementById('akibaTimeExtra');
@@ -1345,19 +1427,20 @@ function selectRadio(group, el) {
 }
 
 function setRadioDOM(group, val) {
-  const groupMap = { yoko: 'yokoRadio', akiba: 'akibaRadio', shii: 'shiiRadio' };
+  const groupMap = { yoko: 'yokoRadio', akiba: 'akibaRadio', shii: 'shiiRadio', return: 'returnRadio' };
   const container = document.getElementById(groupMap[group]);
+  if (!container) return;
   container.querySelectorAll('.radio-item').forEach(r => {
     if (r.dataset.val === val) r.classList.add('selected');
     else r.classList.remove('selected');
   });
-  // extra表示
   if (group === 'yoko' && val === '11:45~') {
     document.getElementById('yokoTimeExtra').classList.add('visible');
   }
   if (group === 'akiba' && val === '14:00~') document.getElementById('akibaTimeExtra').classList.add('visible');
   if (group === 'shii' && val === '15:00~') document.getElementById('shiiTimeExtra').classList.add('visible');
   if (group === 'yoko') document.getElementById('btnCamera').disabled = (val === '横浜なし');
+  if (group === 'return' && val === 'あり') document.getElementById('returnPhotoArea').style.display = 'block';
 }
 
 // ─── Time inputs ───
@@ -1463,6 +1546,47 @@ function retakePhoto() {
   updateProgress();
 }
 
+// ─── 返品カメラ ───────────────────────────────
+function triggerReturnCamera() {
+  document.getElementById('returnCameraInput').click();
+}
+
+document.getElementById('returnCameraInput').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
+  const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  state.returnPhotoName = `${dateStr}_${timeStr}_${state.name || 'unknown'}_返品.jpg`;
+
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const original = ev.target.result;
+    const resized  = await resizeImage(original, PHOTO_MAX_PX, PHOTO_QUALITY);
+    const resizedKB = Math.round(resized.length * 0.75 / 1024);
+    state.returnPhoto = resized;
+    document.getElementById('returnPhotoImg').src = resized;
+    document.getElementById('returnPhotoLabel').textContent = `${state.returnPhotoName}　(約${resizedKB}KB)`;
+    document.getElementById('returnPhotoPreview').style.display = 'block';
+    saveToLocal();
+    updateUI();
+    updateProgress();
+  };
+  reader.readAsDataURL(file);
+});
+
+function retakeReturnPhoto() {
+  state.returnPhoto = null;
+  state.returnPhotoName = '';
+  document.getElementById('returnPhotoPreview').style.display = 'none';
+  document.getElementById('returnPhotoImg').src = '';
+  document.getElementById('returnCameraInput').value = '';
+  saveToLocal();
+  updateUI();
+  updateProgress();
+}
+
 // ═══════════════════════════════════════════
 // SECTION UNLOCK LOGIC
 // ═══════════════════════════════════════════
@@ -1476,8 +1600,12 @@ function isYokoDone()   {
 }
 function isPhotoDone()  {
   if (state.yokoArrival === '横浜なし') return true;
-  // photoデータ本体 or 復元時にphotoNameが残っていれば完了扱い
   return !!(state.photo || state.photoName);
+}
+function isReturnDone() {
+  if (!state.returnStatus) return false;
+  if (state.returnStatus === 'あり') return !!(state.returnPhoto || state.returnPhotoName);
+  return true; // 'なし'
 }
 function isAkibaDone()  {
   if (!state.akibaArrival) return false;
@@ -1496,6 +1624,7 @@ function updateUI() {
   const departDone = isDepartDone();
   const yokoDone   = isYokoDone();
   const photoDone  = isPhotoDone();
+  const returnDone = isReturnDone();
   const akibaDone  = isAkibaDone();
   const shiiDone   = isShiiDone();
 
@@ -1504,13 +1633,14 @@ function updateUI() {
   setSection('sec-depart', nameDone && dateDone, departDone);
   setSection('sec-yoko',   state.departedShii, yokoDone);
   setSection('sec-photo',  state.departedSancha, photoDone);
-  setSection('sec-akiba',  state.departedSancha, akibaDone);
+  setSection('sec-return', state.departedSancha && photoDone, returnDone);
+  setSection('sec-akiba',  state.departedSancha && photoDone && returnDone, akibaDone);
   setSection('sec-shii',   state.departedYoko, shiiDone);
 
   // 出発ボタンの活性制御
   updateDepartBtn('btnDepartShii',  nameDone && dateDone && departDone, state.departedShii,  '🚌', '椎名町 出発', '椎名町 出発済');
   updateDepartBtn('btnDepartSancha', state.departedShii && yokoDone,    state.departedSancha,'🚌', '三軒茶屋 出発','三軒茶屋 出発済');
-  updateDepartBtn('btnDepartYoko',  state.departedSancha && photoDone && akibaDone, state.departedYoko, '🚌', '横浜 出発', '横浜 出発済');
+  updateDepartBtn('btnDepartYoko',  state.departedSancha && photoDone && returnDone && akibaDone, state.departedYoko, '🚌', '横浜 出発', '横浜 出発済');
   updateDepartBtn('btnDepartAkiba', state.departedYoko && shiiDone,     state.departedAkiba, '🚌', '秋葉原 出発', '秋葉原 出発済');
 }
 
@@ -1542,7 +1672,7 @@ function setSection(id, unlocked, done) {
   } else {
     el.classList.remove('done');
     // 番号を元に戻す
-    const nums = {'sec-name':1,'sec-date':2,'sec-depart':3,'sec-yoko':4,'sec-photo':5,'sec-akiba':6,'sec-shii':7};
+    const nums = {'sec-name':1,'sec-date':2,'sec-depart':3,'sec-yoko':4,'sec-photo':5,'sec-return':6,'sec-akiba':7,'sec-shii':8};
     numEl.textContent = nums[id] || '';
   }
 }
@@ -1553,7 +1683,9 @@ function setSection(id, unlocked, done) {
 function updateProgress() {
   const steps = [
     isNameDone(), isDateDone(), isDepartDone(),
-    state.departedShii, state.departedSancha, state.departedYoko, state.departedAkiba
+    state.departedShii, state.departedSancha,
+    isReturnDone(),
+    state.departedYoko, state.departedAkiba
   ];
   const done = steps.filter(Boolean).length;
   const pct = Math.round((done / steps.length) * 100);
@@ -1608,6 +1740,14 @@ async function loadFromGAS(name, date) {
     if (d.shiiArrival)   { state.shiiArrival = d.shiiArrival;   setRadioDOM('shii',  d.shiiArrival); }
     if (d.shiiTime)      { state.shiiTime   = d.shiiTime;   document.getElementById('shiiTime').value  = d.shiiTime; }
     if (d.photoName)     { state.photoName  = d.photoName; }
+    if (d.returnStatus)  {
+      state.returnStatus = d.returnStatus;
+      setRadioDOM('return', d.returnStatus);
+      if (d.returnStatus === 'あり') {
+        document.getElementById('returnPhotoArea').style.display = 'block';
+      }
+    }
+    if (d.returnPhotoName) { state.returnPhotoName = d.returnPhotoName; }
     return true;
   } catch(e) {
     return false;
