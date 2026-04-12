@@ -773,6 +773,9 @@
         </div>
         <!-- 返品写真（返品ありの場合のみ表示） -->
         <div id="returnPhotoArea" style="display:none;margin-top:12px">
+          <div style="background:#FFF8E6;border:1.5px solid #F5C842;border-radius:6px;padding:12px 14px;margin-bottom:12px;font-size:14px;font-weight:600;color:#7A5800;line-height:1.6">
+            📦 対象商品の写真を撮った上で、三茶に持って行ってください
+          </div>
           <div class="time-prompt">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             返品の写真を撮影してください（必須）
@@ -1098,8 +1101,18 @@ async function departYoko() {
       shiiArrival: '', token: state.token,
     });
 
-    // 全部同時に待つ
-    await Promise.all([...uploads, textPayload]);
+    // 全部同時に待つ（返品写真のURLを取得）
+    const [slipResult, returnResult] = await Promise.all([...uploads, textPayload]);
+
+    // 返品ありの場合はメール送信（写真アップロード完了後なのでURLが確定している）
+    if (state.returnStatus === 'あり') {
+      const returnPhotoUrl = (returnResult && returnResult.url) ? returnResult.url : '';
+      await postToGAS({
+        action: 'sendreturnmail',
+        name: state.name,
+        returnPhotoUrl: returnPhotoUrl,
+      });
+    }
 
     state.departedYoko = true;
     saveToLocal();
