@@ -1136,6 +1136,7 @@ async function departAkiba() {
   const statusEl = document.getElementById('statusAkiba');
   btn.disabled = true;
   btn.textContent = '送信中...';
+  const shiiLabel = state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : '');
   const payload = {
     action: 'submit',
     name: state.name, date: state.date,
@@ -1144,7 +1145,8 @@ async function departAkiba() {
     yokoSendMail: false, yokoMailTime: '',
     photo: '', photoName: state.photoName || '',
     akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
-    shiiArrival: state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : ''),
+    shiiArrival: shiiLabel,
+    sendShiiMail: true,   // 椎名町到着通知メール
     token: state.token,
   };
   try {
