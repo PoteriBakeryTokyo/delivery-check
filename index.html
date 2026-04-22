@@ -24,7 +24,6 @@
     --disabled-text: #A09A90;
     --check-active: #2B5BFF;
     --radius: 6px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,47 +50,23 @@
     align-items: center;
     justify-content: space-between;
   }
-  .header-title {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--text-sub);
-    text-transform: uppercase;
-  }
-  .header-date {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--text-sub);
-  }
-  .save-indicator {
-    font-size: 11px;
-    color: var(--success);
-    font-weight: 500;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
+  .header-title { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; color: var(--text-sub); text-transform: uppercase; }
+  .header-date { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-sub); }
+  .save-indicator { font-size: 11px; color: var(--success); font-weight: 500; opacity: 0; transition: opacity 0.3s; }
   .save-indicator.show { opacity: 1; }
 
-  /* ─── Progress bar ─── */
-  .progress-bar {
-    height: 3px;
-    background: var(--border);
-    position: sticky;
-    top: 49px;
-    z-index: 99;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    transition: width 0.4s ease;
-  }
+  /* ─── Progress ─── */
+  .progress-bar { height: 3px; background: var(--border); position: sticky; top: 49px; z-index: 99; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; }
 
-  /* ─── Main ─── */
-  .main {
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 24px 16px;
-  }
+  .main { max-width: 520px; margin: 0 auto; padding: 24px 16px; }
+
+  /* ─── Timing group ─── */
+  .timing-group { margin-bottom: 6px; }
+  .timing-group + .timing-group { margin-top: 20px; }
+  .timing-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 0 2px; }
+  .timing-label-text { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-sub); white-space: nowrap; }
+  .timing-label-line { flex: 1; height: 1px; background: var(--border); }
 
   /* ─── Section ─── */
   .section {
@@ -102,464 +77,179 @@
     overflow: hidden;
     transition: opacity 0.25s, filter 0.25s;
   }
-  .section.locked {
-    opacity: 0.45;
-    pointer-events: none;
-    filter: grayscale(0.3);
-  }
-  .section.done {
-    border-color: var(--border);
-  }
-  .section.done .section-header {
-    background: var(--success-light);
-  }
-
+  .section.locked { opacity: 0.45; pointer-events: none; filter: grayscale(0.3); }
+  .section.done .section-header { background: var(--success-light); }
   .section-header {
     padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     border-bottom: 1px solid var(--border);
     background: var(--surface);
   }
   .section-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-sub);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+    color: var(--text-sub); background: var(--bg); border: 1px solid var(--border);
+    border-radius: 3px; width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .section.done .section-num {
-    background: var(--success);
-    border-color: var(--success);
-    color: #fff;
-  }
-  .section-num-done::after { content: '✓'; }
-  .section-label {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: var(--text);
-    flex: 1;
-  }
-  .section-required {
-    font-size: 10px;
-    color: var(--danger);
-    font-weight: 500;
-  }
-  .section-body {
-    padding: 16px;
-  }
+  .section.done .section-num { background: var(--success); border-color: var(--success); color: #fff; }
+  .section-label { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; flex: 1; }
+  .section-required { font-size: 10px; color: var(--danger); font-weight: 500; }
+  .section.locked .section-required { display: none; }
+  .section-body { padding: 16px; }
 
   /* ─── Form elements ─── */
   select, input[type="text"], input[type="date"], input[type="time"] {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 15px;
-    color: var(--text);
-    background: var(--surface);
-    outline: none;
-    transition: border-color 0.15s;
-    appearance: none;
-    -webkit-appearance: none;
+    width: 100%; padding: 10px 12px;
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 15px; color: var(--text);
+    background: var(--surface); outline: none; transition: border-color 0.15s;
+    appearance: none; -webkit-appearance: none;
   }
   select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A09A90' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
   }
-  select:focus, input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-light);
-  }
-  select:disabled, input:disabled {
-    background: var(--disabled);
-    color: var(--disabled-text);
-    border-color: var(--disabled);
-    cursor: not-allowed;
-  }
-  input[type="text"]::placeholder { color: var(--text-sub); opacity: 0.6; }
+  select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  select:disabled, input:disabled { background: var(--disabled); color: var(--disabled-text); border-color: var(--disabled); cursor: not-allowed; }
 
   /* ─── Checkbox ─── */
   .check-group { display: flex; flex-direction: column; gap: 10px; }
   .check-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    cursor: pointer;
-    padding: 10px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
+    display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
+    padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
     transition: border-color 0.15s, background 0.15s;
   }
   .check-item:hover { border-color: var(--accent); background: var(--accent-light); }
   .check-item.checked { border-color: var(--check-active); background: var(--accent-light); }
   .check-item input[type="checkbox"] { display: none; }
   .check-box {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border);
-    border-radius: 4px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    margin-top: 1px;
+    width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; margin-top: 1px;
   }
-  .check-item.checked .check-box {
-    background: var(--check-active);
-    border-color: var(--check-active);
-  }
+  .check-item.checked .check-box { background: var(--check-active); border-color: var(--check-active); }
   .check-box::after {
-    content: '';
-    width: 10px;
-    height: 6px;
-    border-left: 2px solid #fff;
-    border-bottom: 2px solid #fff;
-    transform: rotate(-45deg) translateY(-1px);
-    opacity: 0;
-    transition: opacity 0.1s;
+    content: ''; width: 10px; height: 6px;
+    border-left: 2px solid #fff; border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translateY(-1px); opacity: 0; transition: opacity 0.1s;
   }
   .check-item.checked .check-box::after { opacity: 1; }
   .check-text { font-size: 14px; line-height: 1.5; }
 
-  /* ─── Radio-select ─── */
+  /* ─── Radio ─── */
   .radio-group { display: flex; flex-direction: column; gap: 8px; }
   .radio-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    padding: 10px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    transition: border-color 0.15s, background 0.15s;
-    font-size: 14px;
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
+    transition: border-color 0.15s, background 0.15s; font-size: 14px;
   }
   .radio-item:hover { border-color: var(--accent); background: var(--accent-light); }
   .radio-item.selected { border-color: var(--accent); background: var(--accent-light); font-weight: 500; }
   .radio-dot {
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--border);
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
+    width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 50%;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;
   }
   .radio-item.selected .radio-dot { border-color: var(--accent); }
-  .radio-dot::after {
-    content: '';
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity 0.1s;
-  }
+  .radio-dot::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: 0; transition: opacity 0.1s; }
   .radio-item.selected .radio-dot::after { opacity: 1; }
 
-  /* ─── Time input inline ─── */
-  .time-extra {
-    margin-top: 10px;
-    display: none;
-  }
+  /* ─── Time extra ─── */
+  .time-extra { margin-top: 10px; display: none; }
   .time-extra.visible { display: block; }
-  .time-extra label {
-    font-size: 12px;
-    color: var(--text-sub);
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-  }
+  .time-extra label { font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 5px; font-weight: 500; }
   .time-prompt {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    background: #FFF8E6;
-    border: 1.5px solid #F5C842;
-    border-radius: var(--radius);
-    padding: 9px 13px;
-    margin-bottom: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #7A5800;
+    display: flex; align-items: center; gap: 7px;
+    background: #FFF8E6; border: 1.5px solid #F5C842; border-radius: var(--radius);
+    padding: 9px 13px; margin-bottom: 10px;
+    font-size: 13px; font-weight: 600; color: #7A5800;
     animation: promptPulse 0.4s ease;
   }
   .time-prompt svg { color: #C48A00; flex-shrink: 0; }
-  @keyframes promptPulse {
-    0%   { transform: scale(0.97); opacity: 0; }
-    60%  { transform: scale(1.01); }
-    100% { transform: scale(1);    opacity: 1; }
-  }
-  .time-extra label {
-    font-size: 12px;
-    color: var(--text-sub);
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-  }
+  @keyframes promptPulse { 0% { transform: scale(0.97); opacity: 0; } 60% { transform: scale(1.01); } 100% { transform: scale(1); opacity: 1; } }
 
-  /* ─── Camera section ─── */
-  .camera-area {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+  /* ─── Camera ─── */
+  .camera-area { display: flex; flex-direction: column; gap: 12px; }
   .btn-camera {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 14px;
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text-sub);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px; border: 2px dashed var(--border); border-radius: var(--radius);
+    background: var(--bg); color: var(--text-sub);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; width: 100%;
   }
-  .btn-camera:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-light);
-  }
-  .btn-camera:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-  .btn-camera svg { flex-shrink: 0; }
-
-  .photo-preview {
-    display: none;
-    position: relative;
-    border-radius: var(--radius);
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
+  .btn-camera:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .btn-camera:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+  .photo-preview { display: none; position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
   .photo-preview img { width: 100%; display: block; }
-  .photo-preview-label {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,0.55);
-    color: #fff;
-    font-size: 11px;
-    padding: 6px 10px;
-    font-family: 'DM Mono', monospace;
+  .photo-preview-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.55); color: #fff; font-size: 11px; padding: 6px 10px; font-family: 'DM Mono', monospace; }
+  .btn-retake { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+
+  /* ─── Section submit button ─── */
+  .btn-section-submit {
+    width: 100%; margin-top: 14px; padding: 15px;
+    background: var(--accent); color: #fff; border: none; border-radius: var(--radius);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.05em;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.15s, transform 0.1s;
+    position: relative; overflow: hidden;
   }
-  .btn-retake {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(255,255,255,0.9);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif;
+  .btn-section-submit:hover { background: #1a46d6; }
+  .btn-section-submit:active { transform: scale(0.99); }
+  .btn-section-submit:disabled { background: var(--disabled); color: var(--disabled-text); cursor: not-allowed; transform: none; }
+  .btn-section-submit.done { background: var(--success); pointer-events: none; }
+  /* progress bar inside button */
+  .btn-section-submit .btn-progress {
+    position: absolute; left: 0; top: 0; height: 100%;
+    background: rgba(255,255,255,0.2); width: 0%;
+    transition: width 0.1s linear; pointer-events: none;
   }
 
-  /* ─── Departure buttons ─── */
-  .depart-btn-area {
-    margin-top: 14px;
-    padding: 0 2px;
-  }
+  /* ─── Depart button (椎名町のみ残す) ─── */
+  .depart-btn-area { margin-top: 14px; padding: 0 2px; }
   .btn-depart {
-    width: 100%;
-    padding: 18px 16px;
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: background 0.15s, transform 0.1s, opacity 0.2s;
-    background: var(--text);
-    color: #fff;
+    width: 100%; padding: 18px 16px; border: none; border-radius: var(--radius);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 16px; font-weight: 700;
+    letter-spacing: 0.06em; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background 0.15s, transform 0.1s;
+    background: var(--text); color: #fff;
     box-shadow: 0 3px 10px rgba(0,0,0,0.18);
   }
-  .btn-depart:hover  { background: #333; }
+  .btn-depart:hover { background: #333; }
   .btn-depart:active { transform: scale(0.98); }
-  .btn-depart:disabled {
-    background: var(--disabled);
-    color: var(--disabled-text);
-    box-shadow: none;
-    cursor: not-allowed;
-    transform: none;
-  }
-  .btn-depart.done {
-    background: var(--success);
-    box-shadow: 0 3px 10px rgba(42,122,75,0.25);
-    pointer-events: none;
-  }
+  .btn-depart:disabled { background: var(--disabled); color: var(--disabled-text); box-shadow: none; cursor: not-allowed; transform: none; }
+  .btn-depart.done { background: var(--success); box-shadow: 0 3px 10px rgba(42,122,75,0.25); pointer-events: none; }
   .btn-depart .depart-icon { font-size: 20px; line-height: 1; }
-  .depart-status {
-    margin-top: 8px;
-    font-size: 12px;
-    text-align: center;
-    color: var(--success);
-    font-weight: 500;
-    display: none;
-  }
+  .depart-status { margin-top: 8px; font-size: 12px; text-align: center; color: var(--success); font-weight: 500; display: none; }
   .depart-status.show { display: block; }
 
-  /* ─── Timing group ─── */
-  .timing-group {
-    margin-bottom: 6px;
-  }
-  .timing-group + .timing-group {
-    margin-top: 20px;
-  }
-  .timing-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-    padding: 0 2px;
-  }
-  .timing-label-text {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--text-sub);
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .timing-label-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .timing-label-icon {
-    font-size: 13px;
-    line-height: 1;
-  }
-  .btn-submit {
-    width: 100%;
-    padding: 16px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.05em;
-    transition: background 0.15s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-submit:hover { background: #1a46d6; }
-  .btn-submit:active { transform: scale(0.99); }
-  .btn-submit:disabled { background: var(--disabled); color: var(--disabled-text); cursor: not-allowed; transform: none; }
-
-  /* ─── Status messages ─── */
-  .status-msg {
-    margin-top: 10px;
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    display: none;
-  }
+  /* ─── Status / misc ─── */
+  .status-msg { margin-top: 10px; padding: 10px 14px; border-radius: var(--radius); font-size: 13px; display: none; }
   .status-msg.success { background: var(--success-light); color: var(--success); border: 1px solid #b3dfc5; display: block; }
   .status-msg.error { background: var(--danger-light); color: var(--danger); border: 1px solid #f5bebe; display: block; }
-  .status-msg.saving { background: var(--accent-light); color: var(--accent); border: 1px solid #c0d0ff; display: block; }
-
-  /* ─── Lock indicator ─── */
-  .lock-badge {
-    font-size: 11px;
-    color: var(--danger);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 8px;
-    display: none;
-  }
+  .lock-badge { font-size: 11px; color: var(--danger); display: none; align-items: center; gap: 4px; margin-top: 8px; }
   .lock-badge.visible { display: flex; }
-
-  /* ─── Helpers ─── */
-  .helper-text {
-    font-size: 12px;
-    color: var(--text-sub);
-    margin-top: 6px;
-  }
+  .helper-text { font-size: 12px; color: var(--text-sub); margin-top: 6px; }
   .field-gap { margin-top: 10px; }
-  .section-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 12px 0;
-  }
+  .return-notice { background: #FFF8E6; border: 1.5px solid #F5C842; border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; font-size: 14px; font-weight: 600; color: #7A5800; line-height: 1.6; }
+
+  /* ─── Loading overlay ─── */
   .loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(247,246,243,0.85);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    gap: 12px;
-    font-size: 14px;
-    color: var(--text-sub);
-    display: none;
+    position: fixed; inset: 0; background: rgba(247,246,243,0.85);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 999; gap: 12px; font-size: 14px; color: var(--text-sub);
   }
   .loading-overlay.visible { display: flex; }
-  .spinner {
-    width: 28px;
-    height: 28px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
+  .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ─── Toast ─── */
   .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
+    position: fixed; bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(80px);
-    background: var(--text);
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 99px;
-    font-size: 13px;
-    z-index: 1000;
-    transition: transform 0.3s ease;
-    white-space: nowrap;
-    pointer-events: none;
+    background: var(--text); color: #fff; padding: 10px 20px;
+    border-radius: 99px; font-size: 13px; z-index: 1000;
+    transition: transform 0.3s ease; white-space: nowrap; pointer-events: none;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
@@ -570,7 +260,6 @@
   <div class="spinner"></div>
   <span id="loadingText">送信中...</span>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <header class="header">
@@ -584,10 +273,9 @@
 
 <main class="main">
 
-  <!-- ══ 椎名町出発時 ══ -->
+  <!-- ══ 椎名町 出発時 ══ -->
   <div class="timing-group">
     <div class="timing-label">
-      <span class="timing-label-icon">🚌</span>
       <span class="timing-label-text">椎名町 出発時</span>
       <div class="timing-label-line"></div>
     </div>
@@ -619,7 +307,7 @@
           <p class="helper-text" id="nameOtherError" style="color:var(--danger);display:none;margin-top:5px">⚠ お名前を入力してください</p>
         </div>
         <div class="lock-badge" id="lockBadge">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="8" height="6" rx="1" stroke="#D94040" stroke-width="1.3"/><path d="M4 5V3.5a2 2 0 0 1 4 0V5" stroke="#D94040" stroke-width="1.3"/></svg>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="2" y="5" width="8" height="6" rx="1" stroke="#D94040" stroke-width="1.3"/><path d="M4 5V3.5a2 2 0 0 1 4 0V5" stroke="#D94040" stroke-width="1.3"/></svg>
           このデバイスで別の担当者が入力中です
         </div>
       </div>
@@ -645,43 +333,26 @@
       </div>
       <div class="section-body">
         <div class="check-group">
-          <label class="check-item" id="chk-sake">
-            <input type="checkbox" id="checkSake">
-            <div class="check-box"></div>
-            <span class="check-text">酒気を帯びていません</span>
-          </label>
-          <label class="check-item" id="chk-dest">
-            <input type="checkbox" id="checkDest">
-            <div class="check-box"></div>
-            <span class="check-text">本日の行き先を確認しました</span>
-          </label>
-          <label class="check-item" id="chk-slip">
-            <input type="checkbox" id="checkSlip">
-            <div class="check-box"></div>
-            <span class="check-text">横浜伝票を持ちました</span>
-          </label>
+          <label class="check-item" id="chk-sake"><input type="checkbox" id="checkSake"><div class="check-box"></div><span class="check-text">酒気を帯びていません</span></label>
+          <label class="check-item" id="chk-dest"><input type="checkbox" id="checkDest"><div class="check-box"></div><span class="check-text">本日の行き先を確認しました</span></label>
+          <label class="check-item" id="chk-slip"><input type="checkbox" id="checkSlip"><div class="check-box"></div><span class="check-text">横浜伝票を持ちました</span></label>
         </div>
       </div>
     </div>
-  </div><!-- /椎名町出発時 -->
 
-  <!-- 椎名町出発ボタン -->
-  <div class="depart-btn-area">
-    <button class="btn-depart" id="btnDepartShii" onclick="departShii()" disabled>
-      <span class="depart-icon">🚌</span>椎名町 出発
-    </button>
-    <div class="depart-status" id="statusShii"></div>
+    <!-- 椎名町出発ボタン -->
+    <div class="depart-btn-area">
+      <button class="btn-depart" id="btnDepartShii" onclick="departShii()" disabled>
+        <span class="depart-icon">🚌</span>椎名町 出発
+      </button>
+      <div class="depart-status" id="statusShii"></div>
+    </div>
   </div>
 
-  <!-- ══ 三軒茶屋出発時 ══ -->
-  <div class="timing-group">
-    <div class="timing-label">
-      <span class="timing-label-icon">🚌</span>
-      <span class="timing-label-text">三軒茶屋 出発時</span>
-      <div class="timing-label-line"></div>
-    </div>
+  <!-- ══ セクション4以降（タイミングラベルなし） ══ -->
+  <div class="timing-group" style="margin-top:20px">
 
-    <!-- ④ 到着予想時刻（横浜） -->
+    <!-- ④ 到着予想時刻（横浜）＋送信ボタン -->
     <div class="section locked" id="sec-yoko">
       <div class="section-header">
         <div class="section-num" id="num-yoko">4</div>
@@ -689,18 +360,10 @@
       </div>
       <div class="section-body">
         <div class="radio-group" id="yokoRadio">
-          <div class="radio-item" data-val="~11:30" onclick="selectRadio('yoko',this)">
-            <div class="radio-dot"></div><span>～11:30</span>
-          </div>
-          <div class="radio-item" data-val="11:30~11:45" onclick="selectRadio('yoko',this)">
-            <div class="radio-dot"></div><span>11:30～11:45</span>
-          </div>
-          <div class="radio-item" data-val="11:45~" onclick="selectRadio('yoko',this)">
-            <div class="radio-dot"></div><span>11:45～</span>
-          </div>
-          <div class="radio-item" data-val="横浜なし" onclick="selectRadio('yoko',this)">
-            <div class="radio-dot"></div><span>横浜なし</span>
-          </div>
+          <div class="radio-item" data-val="~11:30" onclick="selectRadio('yoko',this)"><div class="radio-dot"></div><span>～11:30</span></div>
+          <div class="radio-item" data-val="11:30~11:45" onclick="selectRadio('yoko',this)"><div class="radio-dot"></div><span>11:30～11:45</span></div>
+          <div class="radio-item" data-val="11:45~" onclick="selectRadio('yoko',this)"><div class="radio-dot"></div><span>11:45～</span></div>
+          <div class="radio-item" data-val="横浜なし" onclick="selectRadio('yoko',this)"><div class="radio-dot"></div><span>横浜なし</span></div>
         </div>
         <div class="time-extra" id="yokoTimeExtra">
           <div class="time-prompt">
@@ -709,40 +372,25 @@
           </div>
           <input type="time" id="yokoTime">
         </div>
+        <button class="btn-section-submit" id="btnSubmitYoko" onclick="submitYoko()" disabled>
+          <div class="btn-progress" id="progressYoko"></div>
+          送信
+        </button>
       </div>
     </div>
-  </div><!-- /三軒茶屋出発時 -->
 
-  <!-- 三軒茶屋出発ボタン -->
-  <div class="depart-btn-area">
-    <button class="btn-depart" id="btnDepartSancha" onclick="departSancha()" disabled>
-      <span class="depart-icon">🚌</span>三軒茶屋 出発
-    </button>
-    <div class="depart-status" id="statusSancha"></div>
-  </div>
-
-  <!-- ══ 横浜出発時 ══ -->
-  <div class="timing-group">
-    <div class="timing-label">
-      <span class="timing-label-icon">🚌</span>
-      <span class="timing-label-text" id="yokoGroupLabel">横浜 出発時</span>
-      <div class="timing-label-line"></div>
-    </div>
-
-    <!-- ⑤ 横浜伝票（写真） -->
+    <!-- ⑤ 横浜伝票（写真）＋送信ボタン -->
     <div class="section locked" id="sec-photo">
       <div class="section-header">
         <div class="section-num" id="num-photo">5</div>
         <span class="section-label">横浜伝票（写真）</span>
+        <span class="section-required">必須</span>
       </div>
       <div class="section-body">
         <div class="camera-area">
           <input type="file" accept="image/*" capture="environment" id="cameraInput" style="display:none">
           <button class="btn-camera" id="btnCamera" onclick="triggerCamera()">
-            <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 2L5.5 4H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.5L13 2H7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-              <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
+            <svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M7 2L5.5 4H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.5L13 2H7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
             写真を撮影する
           </button>
           <div class="photo-preview" id="photoPreview">
@@ -750,32 +398,28 @@
             <div class="photo-preview-label" id="photoLabel"></div>
             <button class="btn-retake" onclick="retakePhoto()">撮り直す</button>
           </div>
-          <p class="helper-text">横浜なしを選択した場合はスキップできます</p>
         </div>
+        <button class="btn-section-submit" id="btnSubmitPhoto" onclick="submitPhoto()" disabled>
+          <div class="btn-progress" id="progressPhoto"></div>
+          送信
+        </button>
       </div>
     </div>
 
-    <!-- ⑥ 返品の有無 -->
+    <!-- ⑥ 横浜返品＋送信ボタン -->
     <div class="section locked" id="sec-return">
       <div class="section-header">
         <div class="section-num" id="num-return">6</div>
-        <span class="section-label">返品の有無</span>
+        <span class="section-label">横浜返品</span>
         <span class="section-required">必須</span>
       </div>
       <div class="section-body">
         <div class="radio-group" id="returnRadio">
-          <div class="radio-item" data-val="なし" onclick="selectRadio('return',this)">
-            <div class="radio-dot"></div><span>なし</span>
-          </div>
-          <div class="radio-item" data-val="あり" onclick="selectRadio('return',this)">
-            <div class="radio-dot"></div><span>あり</span>
-          </div>
+          <div class="radio-item" data-val="なし" onclick="selectRadio('return',this)"><div class="radio-dot"></div><span>なし</span></div>
+          <div class="radio-item" data-val="あり" onclick="selectRadio('return',this)"><div class="radio-dot"></div><span>あり</span></div>
         </div>
-        <!-- 返品写真（返品ありの場合のみ表示） -->
         <div id="returnPhotoArea" style="display:none;margin-top:12px">
-          <div style="background:#FFF8E6;border:1.5px solid #F5C842;border-radius:6px;padding:12px 14px;margin-bottom:12px;font-size:14px;font-weight:600;color:#7A5800;line-height:1.6">
-            📦 対象商品の写真を撮った上で、三茶に持って行ってください
-          </div>
+          <div class="return-notice">📦 対象商品の写真を撮った上で、三茶に持って行ってください</div>
           <div class="time-prompt">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             返品の写真を撮影してください（必須）
@@ -783,10 +427,7 @@
           <div class="camera-area" style="margin-top:10px">
             <input type="file" accept="image/*" capture="environment" id="returnCameraInput" style="display:none">
             <button class="btn-camera" id="btnReturnCamera" onclick="triggerReturnCamera()">
-              <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 2L5.5 4H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.5L13 2H7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
-              </svg>
+              <svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M7 2L5.5 4H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.5L13 2H7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
               返品写真を撮影する
             </button>
             <div class="photo-preview" id="returnPhotoPreview">
@@ -796,10 +437,14 @@
             </div>
           </div>
         </div>
+        <button class="btn-section-submit" id="btnSubmitReturn" onclick="submitReturn()" disabled>
+          <div class="btn-progress" id="progressReturn"></div>
+          送信
+        </button>
       </div>
     </div>
 
-    <!-- ⑦ 到着予想時刻（秋葉原） -->
+    <!-- ⑦ 到着予想時刻（秋葉原）＋送信ボタン -->
     <div class="section locked" id="sec-akiba">
       <div class="section-header">
         <div class="section-num" id="num-akiba">7</div>
@@ -807,21 +452,11 @@
       </div>
       <div class="section-body">
         <div class="radio-group" id="akibaRadio">
-          <div class="radio-item" data-val="~13:00" onclick="selectRadio('akiba',this)">
-            <div class="radio-dot"></div><span>～13:00</span>
-          </div>
-          <div class="radio-item" data-val="13:00~13:30" onclick="selectRadio('akiba',this)">
-            <div class="radio-dot"></div><span>13:00～13:30</span>
-          </div>
-          <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('akiba',this)">
-            <div class="radio-dot"></div><span>13:30～14:00</span>
-          </div>
-          <div class="radio-item" data-val="14:00~" onclick="selectRadio('akiba',this)">
-            <div class="radio-dot"></div><span>14:00～</span>
-          </div>
-          <div class="radio-item" data-val="秋葉原なし" onclick="selectRadio('akiba',this)">
-            <div class="radio-dot"></div><span>秋葉原なし</span>
-          </div>
+          <div class="radio-item" data-val="~13:00" onclick="selectRadio('akiba',this)"><div class="radio-dot"></div><span>～13:00</span></div>
+          <div class="radio-item" data-val="13:00~13:30" onclick="selectRadio('akiba',this)"><div class="radio-dot"></div><span>13:00～13:30</span></div>
+          <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('akiba',this)"><div class="radio-dot"></div><span>13:30～14:00</span></div>
+          <div class="radio-item" data-val="14:00~" onclick="selectRadio('akiba',this)"><div class="radio-dot"></div><span>14:00～</span></div>
+          <div class="radio-item" data-val="秋葉原なし" onclick="selectRadio('akiba',this)"><div class="radio-dot"></div><span>秋葉原なし</span></div>
         </div>
         <div class="time-extra" id="akibaTimeExtra">
           <div class="time-prompt">
@@ -830,27 +465,14 @@
           </div>
           <input type="time" id="akibaTime">
         </div>
+        <button class="btn-section-submit" id="btnSubmitAkiba" onclick="submitAkiba()" disabled>
+          <div class="btn-progress" id="progressAkiba"></div>
+          送信
+        </button>
       </div>
     </div>
-  </div><!-- /横浜出発時 -->
 
-  <!-- 横浜出発ボタン -->
-  <div class="depart-btn-area">
-    <button class="btn-depart" id="btnDepartYoko" onclick="departYoko()" disabled>
-      <span class="depart-icon">🚌</span>横浜 出発
-    </button>
-    <div class="depart-status" id="statusYoko"></div>
-  </div>
-
-  <!-- ══ 秋葉原出発時 ══ -->
-  <div class="timing-group">
-    <div class="timing-label">
-      <span class="timing-label-icon">🚌</span>
-      <span class="timing-label-text">秋葉原 出発時</span>
-      <div class="timing-label-line"></div>
-    </div>
-
-    <!-- ⑦ 到着予想時刻（椎名町） -->
+    <!-- ⑧ 到着予想時刻（椎名町）＋送信ボタン -->
     <div class="section locked" id="sec-shii">
       <div class="section-header">
         <div class="section-num" id="num-shii">8</div>
@@ -858,21 +480,11 @@
       </div>
       <div class="section-body">
         <div class="radio-group" id="shiiRadio">
-          <div class="radio-item" data-val="~13:30" onclick="selectRadio('shii',this)">
-            <div class="radio-dot"></div><span>～13:30</span>
-          </div>
-          <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('shii',this)">
-            <div class="radio-dot"></div><span>13:30～14:00</span>
-          </div>
-          <div class="radio-item" data-val="14:00~14:30" onclick="selectRadio('shii',this)">
-            <div class="radio-dot"></div><span>14:00～14:30</span>
-          </div>
-          <div class="radio-item" data-val="14:30~15:00" onclick="selectRadio('shii',this)">
-            <div class="radio-dot"></div><span>14:30～15:00</span>
-          </div>
-          <div class="radio-item" data-val="15:00~" onclick="selectRadio('shii',this)">
-            <div class="radio-dot"></div><span>15:00～</span>
-          </div>
+          <div class="radio-item" data-val="~13:30" onclick="selectRadio('shii',this)"><div class="radio-dot"></div><span>～13:30</span></div>
+          <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('shii',this)"><div class="radio-dot"></div><span>13:30～14:00</span></div>
+          <div class="radio-item" data-val="14:00~14:30" onclick="selectRadio('shii',this)"><div class="radio-dot"></div><span>14:00～14:30</span></div>
+          <div class="radio-item" data-val="14:30~15:00" onclick="selectRadio('shii',this)"><div class="radio-dot"></div><span>14:30～15:00</span></div>
+          <div class="radio-item" data-val="15:00~" onclick="selectRadio('shii',this)"><div class="radio-dot"></div><span>15:00～</span></div>
         </div>
         <div class="time-extra" id="shiiTimeExtra">
           <div class="time-prompt">
@@ -881,17 +493,15 @@
           </div>
           <input type="time" id="shiiTime">
         </div>
+        <button class="btn-section-submit" id="btnSubmitShii" onclick="submitShii()" disabled>
+          <div class="btn-progress" id="progressShii"></div>
+          送信
+        </button>
       </div>
     </div>
-  </div><!-- /秋葉原出発時 -->
 
-  <!-- 秋葉原出発ボタン（最終） -->
-  <div class="depart-btn-area" style="margin-bottom: 8px;">
-    <button class="btn-depart" id="btnDepartAkiba" onclick="departAkiba()" disabled>
-      <span class="depart-icon">🚌</span>秋葉原 出発
-    </button>
-    <div class="depart-status" id="statusAkiba"></div>
   </div>
+
   <div class="status-msg" id="statusMsg" style="margin-top:10px"></div>
 
 </main>
@@ -906,77 +516,67 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzdw94KTvAufXsFJFUqVfZz
 // STATE
 // ═══════════════════════════════════════════
 let state = {
-  name: '',
-  date: '',
-  checkSake: false,
-  checkDest: false,
-  checkSlip: false,
-  yokoArrival: '',
-  yokoTime: '',
-  photo: null,
-  photoName: '',
-  akibaArrival: '',
-  akibaTime: '',
-  shiiArrival: '',
-  shiiTime: '',
-  token: '',
-  submitted: false,
+  name: '', date: '',
+  checkSake: false, checkDest: false, checkSlip: false,
+  yokoArrival: '', yokoTime: '',
+  photo: null, photoName: '',
+  akibaArrival: '', akibaTime: '',
+  shiiArrival: '', shiiTime: '',
+  token: '', submitted: false,
   departedShii: false,
-  departedSancha: false,
-  departedYoko: false,
-  departedAkiba: false,
-  returnStatus: '',    // 'なし' or 'あり'
-  returnPhoto: null,
-  returnPhotoName: '',
+  submittedYoko: false,   // 横浜到着時刻送信済
+  submittedPhoto: false,  // 横浜伝票写真送信済
+  submittedReturn: false, // 横浜返品送信済
+  submittedAkiba: false,  // 秋葉原到着時刻送信済
+  submittedShii: false,   // 椎名町到着時刻送信済
+  returnStatus: '',
+  returnPhoto: null, returnPhotoName: '',
 };
 
 // ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  // 今日の日付をデフォルト
   const today = todayStr();
   document.getElementById('dateInput').value = today;
   document.getElementById('headerDate').textContent = formatDate(today);
   state.date = today;
-
   loadFromLocal();
   updateUI();
   updateProgress();
+  // GASウォームアップ（ページ読み込み後に軽いGETを送ってGASを起動状態にする）
+  warmupGAS();
 });
 
-function todayStr() {
-  const d = new Date();
-  return d.toISOString().split('T')[0];
-}
-
+function todayStr() { return new Date().toISOString().split('T')[0]; }
 function formatDate(iso) {
   if (!iso) return '';
-  const [y, m, day] = iso.split('-');
-  return `${y}年${parseInt(m)}月${parseInt(day)}日`;
+  const [y, m, d] = iso.split('-');
+  return `${y}年${parseInt(m)}月${parseInt(d)}日`;
 }
 
 // ═══════════════════════════════════════════
-// LOCAL STORAGE — キー: name + date
+// GASウォームアップ
 // ═══════════════════════════════════════════
-function storageKey(name, date) {
-  return `delivery_${name}_${date}`;
+function warmupGAS() {
+  fetch(`${GAS_URL}?action=ping`, { redirect: 'follow', credentials: 'omit' }).catch(() => {});
 }
+
+// ═══════════════════════════════════════════
+// LOCAL STORAGE
+// ═══════════════════════════════════════════
+function storageKey(name, date) { return `delivery_${name}_${date}`; }
 
 function saveToLocal() {
   if (!state.name || !state.date) return;
   const key = storageKey(state.name, state.date);
   const data = { ...state, savedAt: Date.now() };
   const photo = data.photo;
-  delete data.photo;
+  const returnPhoto = data.returnPhoto;
+  delete data.photo; delete data.returnPhoto;
   localStorage.setItem(key, JSON.stringify(data));
-  if (photo) {
-    try { localStorage.setItem(key + '_photo', photo); } catch(e) {}
-  }
-  if (data.returnPhoto) {
-    try { localStorage.setItem(key + '_returnPhoto', data.returnPhoto); } catch(e) {}
-    delete data.returnPhoto;
-  }
+  if (photo)       { try { localStorage.setItem(key + '_photo', photo); } catch(e) {} }
+  if (returnPhoto) { try { localStorage.setItem(key + '_returnPhoto', returnPhoto); } catch(e) {} }
 }
 
 function showSaveIndicator() {
@@ -986,318 +586,98 @@ function showSaveIndicator() {
   setTimeout(() => el.classList.remove('show'), 1800);
 }
 
-// ═══════════════════════════════════════════
-// 出発ボタン処理
-// ═══════════════════════════════════════════
-
-// ① 椎名町出発
-async function departShii() {
-  const btn = document.getElementById('btnDepartShii');
-  const statusEl = document.getElementById('statusShii');
-  btn.disabled = true;
-  btn.textContent = '送信中...';
-  const payload = {
-    action: 'autosave',
-    name: state.name, date: state.date,
-    checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-    yokoArrival: '', yokoSendMail: false, yokoMailTime: '',
-    photo: '', photoName: '',
-    akibaArrival: '', shiiArrival: '', token: state.token,
-  };
-  try {
-    await postToGAS(payload);
-    state.departedShii = true;
-    saveToLocal();
-    btn.innerHTML = '<span class="depart-icon">✓</span>椎名町 出発済';
-    btn.classList.add('done');
-    statusEl.textContent = '✓ 記録しました';
-    statusEl.classList.add('show');
-    showSaveIndicator();
-    updateUI(); updateProgress();
-  } catch(e) {
-    btn.innerHTML = '<span class="depart-icon">🚌</span>椎名町 出発';
-    btn.disabled = false;
-    showStatus('error', '通信エラー: ' + e.message);
-  }
-}
-
-// ② 三軒茶屋出発
-async function departSancha() {
-  const btn = document.getElementById('btnDepartSancha');
-  const statusEl = document.getElementById('statusSancha');
-  btn.disabled = true;
-  btn.textContent = '送信中...';
-  const sendYokoMail = (state.yokoArrival === '11:45~');
-  const payload = {
-    action: 'autosave',
-    name: state.name, date: state.date,
-    checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-    yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-    yokoSendMail: sendYokoMail, yokoMailTime: sendYokoMail ? state.yokoTime : '',
-    photo: '', photoName: state.photoName || '',
-    akibaArrival: '', shiiArrival: '', token: state.token,
-  };
-  try {
-    await postToGAS(payload);
-    state.departedSancha = true;
-    saveToLocal();
-    btn.innerHTML = '<span class="depart-icon">✓</span>三軒茶屋 出発済';
-    btn.classList.add('done');
-    statusEl.textContent = sendYokoMail ? '✓ 記録・メール送信しました' : '✓ 記録しました';
-    statusEl.classList.add('show');
-    showSaveIndicator();
-    updateUI(); updateProgress();
-  } catch(e) {
-    btn.innerHTML = '<span class="depart-icon">🚌</span>三軒茶屋 出発';
-    btn.disabled = false;
-    showStatus('error', '通信エラー: ' + e.message);
-  }
-}
-
-// ③ 横浜出発（写真を並列アップロード → テキスト送信）
-async function departYoko() {
-  const btn = document.getElementById('btnDepartYoko');
-  const statusEl = document.getElementById('statusYoko');
-  btn.disabled = true;
-  btn.textContent = '送信中...';
-
-  try {
-    // ─ STEP1: 伝票写真・返品写真を並列アップロード
-    const uploads = [];
-    if (state.photo && state.photoName) {
-      uploads.push(postToGAS({
-        action: 'uploadphoto',
-        name: state.name, date: state.date,
-        photoType: 'slip',
-        photo: state.photo,
-        photoName: state.photoName,
-      }));
-    } else {
-      uploads.push(Promise.resolve(null));
-    }
-    if (state.returnPhoto && state.returnPhotoName) {
-      uploads.push(postToGAS({
-        action: 'uploadphoto',
-        name: state.name, date: state.date,
-        photoType: 'return',
-        photo: state.returnPhoto,
-        photoName: state.returnPhotoName,
-      }));
-    } else {
-      uploads.push(Promise.resolve(null));
-    }
-
-    // ─ STEP2: テキストデータ送信も並列で実行
-    const textPayload = postToGAS({
-      action: 'submit',
-      name: state.name, date: state.date,
-      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-      yokoSendMail: false, yokoMailTime: '',
-      photo: '', photoName: state.photoName || '',
-      returnStatus: state.returnStatus || '',
-      returnPhoto: '', returnPhotoName: state.returnPhotoName || '',
-      akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
-      shiiArrival: '', token: state.token,
-    });
-
-    // 全部同時に待つ（返品写真のURLを取得）
-    const [slipResult, returnResult] = await Promise.all([...uploads, textPayload]);
-
-    // 返品ありの場合はメール送信（写真アップロード完了後なのでURLが確定している）
-    if (state.returnStatus === 'あり') {
-      const returnPhotoUrl = (returnResult && returnResult.url) ? returnResult.url : '';
-      await postToGAS({
-        action: 'sendreturnmail',
-        name: state.name,
-        returnPhotoUrl: returnPhotoUrl,
-      });
-    }
-
-    state.departedYoko = true;
-    saveToLocal();
-    btn.innerHTML = '<span class="depart-icon">✓</span>横浜 出発済';
-    btn.classList.add('done');
-    statusEl.textContent = '✓ 記録・写真保存しました';
-    statusEl.classList.add('show');
-    showSaveIndicator();
-    updateUI(); updateProgress();
-
-  } catch(e) {
-    btn.innerHTML = '<span class="depart-icon">🚌</span>横浜 出発';
-    btn.disabled = false;
-    showStatus('error', '通信エラー: ' + e.message);
-  }
-}
-
-// ④ 秋葉原出発（最終）
-async function departAkiba() {
-  const btn = document.getElementById('btnDepartAkiba');
-  const statusEl = document.getElementById('statusAkiba');
-  btn.disabled = true;
-  btn.textContent = '送信中...';
-  const shiiLabel = state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : '');
-  const payload = {
-    action: 'submit',
-    name: state.name, date: state.date,
-    checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-    yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-    yokoSendMail: false, yokoMailTime: '',
-    photo: '', photoName: state.photoName || '',
-    akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
-    shiiArrival: shiiLabel,
-    sendShiiMail: true,   // 椎名町到着通知メール
-    token: state.token,
-  };
-  try {
-    await postToGAS(payload);
-    state.departedAkiba = true;
-    state.submitted = true;
-    saveToLocal();
-    btn.innerHTML = '<span class="depart-icon">✓</span>秋葉原 出発済';
-    btn.classList.add('done');
-    statusEl.textContent = '✓ 全行程の記録が完了しました';
-    statusEl.classList.add('show');
-    showSaveIndicator();
-    showToast('お疲れさまでした！');
-    updateUI(); updateProgress();
-  } catch(e) {
-    btn.innerHTML = '<span class="depart-icon">🚌</span>秋葉原 出発';
-    btn.disabled = false;
-    showStatus('error', '通信エラー: ' + e.message);
-  }
-}
-
-function loadFromLocal() {
-  // 今日保存済みのデータを探す
-  const today = todayStr();
-  // nameを先に読む手段がないので、nameSelectの変更後に呼ぶ
-  // ここではtokenのみ初期化
-  if (!state.token) {
-    state.token = localStorage.getItem('myToken') || generateToken();
-    localStorage.setItem('myToken', state.token);
-  }
-}
-
 function loadDataForNameDate(name, date) {
   const key = storageKey(name, date);
   const raw = localStorage.getItem(key);
   if (!raw) return false;
   try {
     const saved = JSON.parse(raw);
-    const photo = localStorage.getItem(key + '_photo') || null;
-
-    // トークン確認: 別デバイスのデータか自分のデータか
     const isMine = (saved.token === state.token);
-
-    // 全フィールドを復元
     state.date = saved.date || date;
     state.checkSake = saved.checkSake || false;
     state.checkDest = saved.checkDest || false;
     state.checkSlip = saved.checkSlip || false;
     state.yokoArrival = saved.yokoArrival || '';
     state.yokoTime = saved.yokoTime || '';
-    state.photo = photo;
+    state.photo = localStorage.getItem(key + '_photo') || null;
     state.photoName = saved.photoName || '';
     state.akibaArrival = saved.akibaArrival || '';
     state.akibaTime = saved.akibaTime || '';
     state.shiiArrival = saved.shiiArrival || '';
     state.shiiTime = saved.shiiTime || '';
-    state.submitted     = saved.submitted     || false;
-    state.departedShii  = saved.departedShii  || false;
-    state.departedSancha= saved.departedSancha|| false;
-    state.departedYoko  = saved.departedYoko  || false;
-    state.departedAkiba = saved.departedAkiba || false;
-    state.returnStatus  = saved.returnStatus  || '';
-    state.returnPhotoName = saved.returnPhotoName || '';
-    if (state.returnStatus) setRadioDOM('return', state.returnStatus);
-    const returnPhoto = localStorage.getItem(key + '_returnPhoto') || null;
-    state.returnPhoto = returnPhoto;
-    if (returnPhoto) {
-      document.getElementById('returnPhotoImg').src = returnPhoto;
-      document.getElementById('returnPhotoLabel').textContent = state.returnPhotoName;
-      document.getElementById('returnPhotoPreview').style.display = 'block';
-      document.getElementById('returnPhotoArea').style.display = 'block';
-    }
+    state.submitted      = saved.submitted      || false;
+    state.departedShii   = saved.departedShii   || false;
+    state.submittedYoko  = saved.submittedYoko  || false;
+    state.submittedPhoto = saved.submittedPhoto || false;
+    state.submittedReturn= saved.submittedReturn|| false;
+    state.submittedAkiba = saved.submittedAkiba || false;
+    state.submittedShii  = saved.submittedShii  || false;
+    state.returnStatus   = saved.returnStatus   || '';
+    state.returnPhotoName= saved.returnPhotoName|| '';
+    state.returnPhoto = localStorage.getItem(key + '_returnPhoto') || null;
 
     // DOM反映
     document.getElementById('dateInput').value = state.date;
     document.getElementById('headerDate').textContent = formatDate(state.date);
-
     document.getElementById('checkSake').checked = state.checkSake;
     document.getElementById('checkDest').checked = state.checkDest;
     document.getElementById('checkSlip').checked = state.checkSlip;
     updateCheckStyle('chk-sake', state.checkSake);
     updateCheckStyle('chk-dest', state.checkDest);
     updateCheckStyle('chk-slip', state.checkSlip);
-
-    if (state.yokoArrival) setRadioDOM('yoko', state.yokoArrival);
-    if (state.akibaArrival) setRadioDOM('akiba', state.akibaArrival);
-    if (state.shiiArrival) setRadioDOM('shii', state.shiiArrival);
-
-    if (state.yokoTime) document.getElementById('yokoTime').value = state.yokoTime;
+    if (state.yokoArrival)  setRadioDOM('yoko',   state.yokoArrival);
+    if (state.akibaArrival) setRadioDOM('akiba',  state.akibaArrival);
+    if (state.shiiArrival)  setRadioDOM('shii',   state.shiiArrival);
+    if (state.returnStatus) setRadioDOM('return', state.returnStatus);
+    if (state.yokoTime)  document.getElementById('yokoTime').value  = state.yokoTime;
     if (state.akibaTime) document.getElementById('akibaTime').value = state.akibaTime;
-    if (state.shiiTime) document.getElementById('shiiTime').value = state.shiiTime;
-
+    if (state.shiiTime)  document.getElementById('shiiTime').value  = state.shiiTime;
     if (state.photo) {
       document.getElementById('photoImg').src = state.photo;
       document.getElementById('photoLabel').textContent = state.photoName;
       document.getElementById('photoPreview').style.display = 'block';
     }
-
-    // ロックバッジ: 他人のデータの場合
-    if (!isMine && raw) {
-      document.getElementById('lockBadge').classList.add('visible');
+    if (state.returnPhoto) {
+      document.getElementById('returnPhotoImg').src = state.returnPhoto;
+      document.getElementById('returnPhotoLabel').textContent = state.returnPhotoName;
+      document.getElementById('returnPhotoPreview').style.display = 'block';
+      document.getElementById('returnPhotoArea').style.display = 'block';
     }
-    saved.token = state.token; // 継承
-
-    // ★ 復元後にロック状態を必ず再評価
-    updateUI();
-    updateProgress();
-
+    if (!isMine && raw) document.getElementById('lockBadge').classList.add('visible');
+    saved.token = state.token;
+    updateUI(); updateProgress();
     showToast('保存済みデータを復元しました');
     return true;
   } catch(e) { return false; }
 }
 
-function generateToken() {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+function generateToken() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+
+function loadFromLocal() {
+  if (!state.token) {
+    state.token = localStorage.getItem('myToken') || generateToken();
+    localStorage.setItem('myToken', state.token);
+  }
 }
 
 // ═══════════════════════════════════════════
-// NAME SELECT
+// NAME / DATE
 // ═══════════════════════════════════════════
 document.getElementById('nameSelect').addEventListener('change', function() {
   const val = this.value;
   document.getElementById('nameOtherWrap').style.display = val === '__other__' ? 'block' : 'none';
-  if (val !== '__other__') {
-    state.name = val;
-    onNameConfirm();
-  } else {
-    state.name = '';
-    updateUI();
-  }
+  if (val !== '__other__') { state.name = val; onNameConfirm(); }
+  else { state.name = ''; updateUI(); }
 });
 
 document.getElementById('nameOther').addEventListener('input', function() {
   state.name = this.value.trim();
   const errEl = document.getElementById('nameOtherError');
-  if (state.name) {
-    errEl.style.display = 'none';
-    this.style.borderColor = '';
-    onNameConfirm();
-  } else {
-    errEl.style.display = 'block';
-    this.style.borderColor = 'var(--danger)';
-    updateUI();
-  }
+  if (state.name) { errEl.style.display = 'none'; this.style.borderColor = ''; onNameConfirm(); }
+  else { errEl.style.display = 'block'; this.style.borderColor = 'var(--danger)'; updateUI(); }
 });
-
 document.getElementById('nameOther').addEventListener('blur', function() {
-  if (!this.value.trim()) {
-    document.getElementById('nameOtherError').style.display = 'block';
-    this.style.borderColor = 'var(--danger)';
-  }
+  if (!this.value.trim()) { document.getElementById('nameOtherError').style.display = 'block'; this.style.borderColor = 'var(--danger)'; }
 });
 
 function onNameConfirm() {
@@ -1305,99 +685,59 @@ function onNameConfirm() {
   state.date = date;
   const loaded = loadDataForNameDate(state.name, date);
   if (!loaded) {
-    // この名前+日付のデータなし → リセット
     resetFormFields();
     state.date = date;
-    if (GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
-      showToast('データを確認中...');
-      loadFromGAS(state.name, date).then(gasLoaded => {
-        if (gasLoaded) showToast('クラウドからデータを復元しました');
-        updateUI();
-        updateProgress();
-      });
-    }
+    loadFromGAS(state.name, date).then(gasLoaded => {
+      if (gasLoaded) showToast('クラウドからデータを復元しました');
+      updateUI(); updateProgress();
+    });
   }
-  updateUI();
-  updateProgress();
+  updateUI(); updateProgress();
 }
 
-// ═══════════════════════════════════════════
-// DATE INPUT
-// ═══════════════════════════════════════════
 document.getElementById('dateInput').addEventListener('change', function() {
   const newDate = this.value;
   document.getElementById('headerDate').textContent = formatDate(newDate);
-
   if (state.name) {
-    // 新しい日付でLocalStorageにデータがあれば復元、なければリセット
     const loaded = loadDataForNameDate(state.name, newDate);
     if (!loaded) {
-      // 新しい日付 = 新しいレコード → 項目をリセット
-      resetFormFields();
-      state.date = newDate;
+      resetFormFields(); state.date = newDate;
       showToast('日付を変更しました。項目をリセットしました');
-      // GASからも確認
-      if (GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
-        loadFromGAS(state.name, newDate).then(gasLoaded => {
-          if (gasLoaded) showToast('クラウドからデータを復元しました');
-          updateUI();
-          updateProgress();
-        });
-      }
+      loadFromGAS(state.name, newDate).then(gasLoaded => {
+        if (gasLoaded) showToast('クラウドからデータを復元しました');
+        updateUI(); updateProgress();
+      });
     }
-  } else {
-    state.date = newDate;
-  }
-
-  saveToLocal();
-  updateUI();
-  updateProgress();
+  } else { state.date = newDate; }
+  saveToLocal(); updateUI(); updateProgress();
 });
 
 function resetFormFields() {
-  // チェックボックスリセット
   state.checkSake = false; state.checkDest = false; state.checkSlip = false;
-  document.getElementById('checkSake').checked = false;
-  document.getElementById('checkDest').checked = false;
-  document.getElementById('checkSlip').checked = false;
-  updateCheckStyle('chk-sake', false);
-  updateCheckStyle('chk-dest', false);
-  updateCheckStyle('chk-slip', false);
-
-  // ラジオリセット
+  ['checkSake','checkDest','checkSlip'].forEach(id => document.getElementById(id).checked = false);
+  updateCheckStyle('chk-sake', false); updateCheckStyle('chk-dest', false); updateCheckStyle('chk-slip', false);
   state.yokoArrival = ''; state.yokoTime = '';
   state.akibaArrival = ''; state.akibaTime = '';
   state.shiiArrival = ''; state.shiiTime = '';
-  ['yokoRadio','akibaRadio','shiiRadio'].forEach(id => {
+  ['yokoRadio','akibaRadio','shiiRadio','returnRadio'].forEach(id => {
     document.getElementById(id).querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
   });
-  ['yokoTimeExtra','akibaTimeExtra','shiiTimeExtra'].forEach(id => {
-    document.getElementById(id).classList.remove('visible');
-  });
-  document.getElementById('yokoTime').value = '';
-  document.getElementById('akibaTime').value = '';
-  document.getElementById('shiiTime').value = '';
-
-  // 写真リセット
+  ['yokoTimeExtra','akibaTimeExtra','shiiTimeExtra'].forEach(id => document.getElementById(id).classList.remove('visible'));
+  ['yokoTime','akibaTime','shiiTime'].forEach(id => document.getElementById(id).value = '');
   state.photo = null; state.photoName = '';
   document.getElementById('photoPreview').style.display = 'none';
   document.getElementById('photoImg').src = '';
   document.getElementById('cameraInput').value = '';
   document.getElementById('btnCamera').disabled = false;
-
-  // 返品リセット
   state.returnStatus = ''; state.returnPhoto = null; state.returnPhotoName = '';
-  document.getElementById('returnRadio').querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
   document.getElementById('returnPhotoArea').style.display = 'none';
   document.getElementById('returnPhotoPreview').style.display = 'none';
   document.getElementById('returnPhotoImg').src = '';
   document.getElementById('returnCameraInput').value = '';
-
   state.submitted = false;
   state.departedShii = false;
-  state.departedSancha = false;
-  state.departedYoko = false;
-  state.departedAkiba = false;
+  state.submittedYoko = false; state.submittedPhoto = false;
+  state.submittedReturn = false; state.submittedAkiba = false; state.submittedShii = false;
 }
 
 // ═══════════════════════════════════════════
@@ -1405,52 +745,39 @@ function resetFormFields() {
 // ═══════════════════════════════════════════
 ['checkSake','checkDest','checkSlip'].forEach(id => {
   document.getElementById(id).addEventListener('change', function() {
-    const map = { checkSake: 'checkSake', checkDest: 'checkDest', checkSlip: 'checkSlip' };
-    const uiMap = { checkSake: 'chk-sake', checkDest: 'chk-dest', checkSlip: 'chk-slip' };
+    const map = {checkSake:'checkSake',checkDest:'checkDest',checkSlip:'checkSlip'};
+    const uiMap = {checkSake:'chk-sake',checkDest:'chk-dest',checkSlip:'chk-slip'};
     state[map[id]] = this.checked;
     updateCheckStyle(uiMap[id], this.checked);
-    saveToLocal();
-    updateUI();
-    updateProgress();
+    saveToLocal(); updateUI(); updateProgress();
   });
 });
-
 function updateCheckStyle(elemId, checked) {
   const el = document.getElementById(elemId);
-  if (checked) el.classList.add('checked');
-  else el.classList.remove('checked');
+  if (checked) el.classList.add('checked'); else el.classList.remove('checked');
 }
 
 // ═══════════════════════════════════════════
 // RADIO SELECT
 // ═══════════════════════════════════════════
 function selectRadio(group, el) {
-  // 全解除
-  const parent = el.closest('.radio-group');
-  parent.querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
+  el.closest('.radio-group').querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
   el.classList.add('selected');
   const val = el.dataset.val;
-
   if (group === 'yoko') {
     state.yokoArrival = val;
     const extra = document.getElementById('yokoTimeExtra');
-    if (val === '11:45~') {
-      extra.classList.add('visible');
-    } else {
-      extra.classList.remove('visible');
-      state.yokoTime = '';
-    }
+    if (val === '11:45~') extra.classList.add('visible');
+    else { extra.classList.remove('visible'); state.yokoTime = ''; }
     document.getElementById('btnCamera').disabled = (val === '横浜なし');
     if (val === '横浜なし') state.photo = null;
   } else if (group === 'return') {
     state.returnStatus = val;
     const area = document.getElementById('returnPhotoArea');
-    if (val === 'あり') {
-      area.style.display = 'block';
-    } else {
+    if (val === 'あり') { area.style.display = 'block'; }
+    else {
       area.style.display = 'none';
-      state.returnPhoto = null;
-      state.returnPhotoName = '';
+      state.returnPhoto = null; state.returnPhotoName = '';
       document.getElementById('returnPhotoPreview').style.display = 'none';
       document.getElementById('returnPhotoImg').src = '';
       document.getElementById('returnCameraInput').value = '';
@@ -1466,80 +793,47 @@ function selectRadio(group, el) {
     if (val === '15:00~') extra.classList.add('visible');
     else { extra.classList.remove('visible'); state.shiiTime = ''; }
   }
-
-  saveToLocal();
-  updateUI();
-  updateProgress();
+  saveToLocal(); updateUI(); updateProgress();
 }
 
 function setRadioDOM(group, val) {
-  const groupMap = { yoko: 'yokoRadio', akiba: 'akibaRadio', shii: 'shiiRadio', return: 'returnRadio' };
+  const groupMap = {yoko:'yokoRadio',akiba:'akibaRadio',shii:'shiiRadio',return:'returnRadio'};
   const container = document.getElementById(groupMap[group]);
   if (!container) return;
   container.querySelectorAll('.radio-item').forEach(r => {
-    if (r.dataset.val === val) r.classList.add('selected');
-    else r.classList.remove('selected');
+    if (r.dataset.val === val) r.classList.add('selected'); else r.classList.remove('selected');
   });
-  if (group === 'yoko' && val === '11:45~') {
-    document.getElementById('yokoTimeExtra').classList.add('visible');
-  }
+  if (group === 'yoko' && val === '11:45~') document.getElementById('yokoTimeExtra').classList.add('visible');
   if (group === 'akiba' && val === '14:00~') document.getElementById('akibaTimeExtra').classList.add('visible');
   if (group === 'shii' && val === '15:00~') document.getElementById('shiiTimeExtra').classList.add('visible');
   if (group === 'yoko') document.getElementById('btnCamera').disabled = (val === '横浜なし');
   if (group === 'return' && val === 'あり') document.getElementById('returnPhotoArea').style.display = 'block';
 }
 
-// ─── Time inputs ───
-document.getElementById('yokoTime').addEventListener('change', function() {
-  state.yokoTime = this.value;
-  saveToLocal();
-  updateUI();
-  updateProgress();
-});
-document.getElementById('akibaTime').addEventListener('change', function() {
-  state.akibaTime = this.value;
-  saveToLocal();
-  updateUI();
-  updateProgress();
-});
-document.getElementById('shiiTime').addEventListener('change', function() {
-  state.shiiTime = this.value;
-  saveToLocal();
-  updateUI();
-  updateProgress();
-});
+document.getElementById('yokoTime').addEventListener('change', function() { state.yokoTime = this.value; saveToLocal(); updateUI(); updateProgress(); });
+document.getElementById('akibaTime').addEventListener('change', function() { state.akibaTime = this.value; saveToLocal(); updateUI(); updateProgress(); });
+document.getElementById('shiiTime').addEventListener('change', function() { state.shiiTime = this.value; saveToLocal(); updateUI(); updateProgress(); });
 
 // ═══════════════════════════════════════════
 // CAMERA
 // ═══════════════════════════════════════════
-const PHOTO_MAX_PX   = 800;    // 長辺の上限ピクセル（縮小強化）
-const PHOTO_QUALITY  = 0.70;   // JPEG品質（縮小強化）
+const PHOTO_MAX_PX  = 800;
+const PHOTO_QUALITY = 0.70;
 
-function triggerCamera() {
-  document.getElementById('cameraInput').click();
-}
+function triggerCamera() { document.getElementById('cameraInput').click(); }
+function triggerReturnCamera() { document.getElementById('returnCameraInput').click(); }
 
-/**
- * Canvas を使って画像を縮小し、base64 JPEGを返す
- * 長辺が MAX_PX 以下ならリサイズしない
- */
 function resizeImage(dataUrl, maxPx, quality) {
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
-      let { width, height } = img;
+      let {width, height} = img;
       if (width > maxPx || height > maxPx) {
-        if (width >= height) {
-          height = Math.round(height * maxPx / width);
-          width  = maxPx;
-        } else {
-          width  = Math.round(width * maxPx / height);
-          height = maxPx;
-        }
+        if (width >= height) { height = Math.round(height * maxPx / width); width = maxPx; }
+        else { width = Math.round(width * maxPx / height); height = maxPx; }
       }
       const canvas = document.createElement('canvas');
-      canvas.width  = width;
-      canvas.height = height;
+      canvas.width = width; canvas.height = height;
       canvas.getContext('2d').drawImage(img, 0, 0, width, height);
       resolve(canvas.toDataURL('image/jpeg', quality));
     };
@@ -1548,96 +842,245 @@ function resizeImage(dataUrl, maxPx, quality) {
 }
 
 document.getElementById('cameraInput').addEventListener('change', async function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  // ファイル名: YYYYMMDD_HHMMSS_名前
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
-  const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-  state.photoName = `${dateStr}_${timeStr}_${state.name || 'unknown'}.jpg`;
-
-  // 元画像を読み込んでリサイズ
+  const file = e.target.files[0]; if (!file) return;
+  const now = new Date(); const pad = n => String(n).padStart(2,'0');
+  const ds = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
+  const ts = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  state.photoName = `${ds}_${ts}_${state.name||'unknown'}.jpg`;
   const reader = new FileReader();
   reader.onload = async ev => {
-    const original = ev.target.result;
-    const resized  = await resizeImage(original, PHOTO_MAX_PX, PHOTO_QUALITY);
-
-    // サイズ確認をコンソールに出力（デバッグ用）
-    const origKB   = Math.round(original.length * 0.75 / 1024);
-    const resizedKB = Math.round(resized.length * 0.75 / 1024);
-    console.log(`写真縮小: ${origKB}KB → ${resizedKB}KB`);
-
+    const resized = await resizeImage(ev.target.result, PHOTO_MAX_PX, PHOTO_QUALITY);
+    const kb = Math.round(resized.length * 0.75 / 1024);
     state.photo = resized;
     document.getElementById('photoImg').src = resized;
-    document.getElementById('photoLabel').textContent =
-      `${state.photoName}　(約${resizedKB}KB)`;
+    document.getElementById('photoLabel').textContent = `${state.photoName}　(約${kb}KB)`;
     document.getElementById('photoPreview').style.display = 'block';
-    saveToLocal();
-    updateUI();
-    updateProgress();
+    saveToLocal(); updateUI(); updateProgress();
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('returnCameraInput').addEventListener('change', async function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const now = new Date(); const pad = n => String(n).padStart(2,'0');
+  const ds = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
+  const ts = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  state.returnPhotoName = `${ds}_${ts}_${state.name||'unknown'}_返品.jpg`;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const resized = await resizeImage(ev.target.result, PHOTO_MAX_PX, PHOTO_QUALITY);
+    const kb = Math.round(resized.length * 0.75 / 1024);
+    state.returnPhoto = resized;
+    document.getElementById('returnPhotoImg').src = resized;
+    document.getElementById('returnPhotoLabel').textContent = `${state.returnPhotoName}　(約${kb}KB)`;
+    document.getElementById('returnPhotoPreview').style.display = 'block';
+    saveToLocal(); updateUI(); updateProgress();
   };
   reader.readAsDataURL(file);
 });
 
 function retakePhoto() {
-  state.photo = null;
-  state.photoName = '';
+  state.photo = null; state.photoName = '';
   document.getElementById('photoPreview').style.display = 'none';
   document.getElementById('photoImg').src = '';
   document.getElementById('cameraInput').value = '';
-  saveToLocal();
-  updateUI();
-  updateProgress();
+  saveToLocal(); updateUI(); updateProgress();
 }
-
-// ─── 返品カメラ ───────────────────────────────
-function triggerReturnCamera() {
-  document.getElementById('returnCameraInput').click();
-}
-
-document.getElementById('returnCameraInput').addEventListener('change', async function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
-  const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-  state.returnPhotoName = `${dateStr}_${timeStr}_${state.name || 'unknown'}_返品.jpg`;
-
-  const reader = new FileReader();
-  reader.onload = async ev => {
-    const original = ev.target.result;
-    const resized  = await resizeImage(original, PHOTO_MAX_PX, PHOTO_QUALITY);
-    const resizedKB = Math.round(resized.length * 0.75 / 1024);
-    state.returnPhoto = resized;
-    document.getElementById('returnPhotoImg').src = resized;
-    document.getElementById('returnPhotoLabel').textContent = `${state.returnPhotoName}　(約${resizedKB}KB)`;
-    document.getElementById('returnPhotoPreview').style.display = 'block';
-    saveToLocal();
-    updateUI();
-    updateProgress();
-  };
-  reader.readAsDataURL(file);
-});
-
 function retakeReturnPhoto() {
-  state.returnPhoto = null;
-  state.returnPhotoName = '';
+  state.returnPhoto = null; state.returnPhotoName = '';
   document.getElementById('returnPhotoPreview').style.display = 'none';
   document.getElementById('returnPhotoImg').src = '';
   document.getElementById('returnCameraInput').value = '';
-  saveToLocal();
-  updateUI();
-  updateProgress();
+  saveToLocal(); updateUI(); updateProgress();
+}
+
+// ═══════════════════════════════════════════
+// SECTION SUBMIT ACTIONS
+// ═══════════════════════════════════════════
+
+// ① 椎名町出発
+async function departShii() {
+  const btn = document.getElementById('btnDepartShii');
+  const statusEl = document.getElementById('statusShii');
+  btn.disabled = true; btn.textContent = '送信中...';
+  try {
+    await postToGAS({
+      action: 'autosave',
+      name: state.name, date: state.date,
+      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+      yokoArrival: '', yokoSendMail: false, yokoMailTime: '',
+      photo: '', photoName: '', akibaArrival: '', shiiArrival: '', token: state.token,
+    });
+    state.departedShii = true; saveToLocal();
+    btn.innerHTML = '<span class="depart-icon">✓</span>椎名町 出発済';
+    btn.classList.add('done');
+    statusEl.textContent = '✓ 記録しました'; statusEl.classList.add('show');
+    showSaveIndicator(); updateUI(); updateProgress();
+  } catch(e) {
+    btn.innerHTML = '<span class="depart-icon">🚌</span>椎名町 出発';
+    btn.disabled = false; showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ② 横浜到着時刻 送信
+async function submitYoko() {
+  const btn = document.getElementById('btnSubmitYoko');
+  startBtnProgress(btn, 'progressYoko');
+  const sendYokoMail = (state.yokoArrival === '11:45~');
+  try {
+    await postToGAS({
+      action: 'autosave',
+      name: state.name, date: state.date,
+      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+      yokoSendMail: sendYokoMail, yokoMailTime: sendYokoMail ? state.yokoTime : '',
+      photo: '', photoName: '', akibaArrival: '', shiiArrival: '', token: state.token,
+    });
+    state.submittedYoko = true; saveToLocal();
+    finishBtn(btn, '✓ 送信済');
+    showSaveIndicator(); updateUI(); updateProgress();
+  } catch(e) {
+    resetBtn(btn, '送信'); showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ③ 横浜伝票写真 送信
+async function submitPhoto() {
+  const btn = document.getElementById('btnSubmitPhoto');
+  startBtnProgress(btn, 'progressPhoto');
+  try {
+    await postToGAS({
+      action: 'uploadphoto',
+      name: state.name, date: state.date,
+      photoType: 'slip', photo: state.photo, photoName: state.photoName,
+    });
+    state.submittedPhoto = true; saveToLocal();
+    finishBtn(btn, '✓ 送信済');
+    showSaveIndicator(); updateUI(); updateProgress();
+  } catch(e) {
+    resetBtn(btn, '送信'); showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ④ 横浜返品 送信
+async function submitReturn() {
+  const btn = document.getElementById('btnSubmitReturn');
+  startBtnProgress(btn, 'progressReturn');
+  try {
+    const promises = [];
+    // 返品写真があればアップロード
+    if (state.returnPhoto && state.returnPhotoName) {
+      promises.push(postToGAS({
+        action: 'uploadphoto',
+        name: state.name, date: state.date,
+        photoType: 'return', photo: state.returnPhoto, photoName: state.returnPhotoName,
+      }));
+    }
+    // 返品ステータスをスプシに記録
+    promises.push(postToGAS({
+      action: 'autosave',
+      name: state.name, date: state.date,
+      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+      yokoSendMail: false, yokoMailTime: '',
+      photo: '', photoName: state.photoName || '',
+      returnStatus: state.returnStatus || '',
+      returnPhoto: '', returnPhotoName: state.returnPhotoName || '',
+      akibaArrival: '', shiiArrival: '', token: state.token,
+    }));
+    const results = await Promise.all(promises);
+    // 返品ありの場合はメール送信
+    if (state.returnStatus === 'あり') {
+      const uploadResult = results.find(r => r && r.url);
+      const returnPhotoUrl = uploadResult ? uploadResult.url : '';
+      await postToGAS({ action: 'sendreturnmail', name: state.name, returnPhotoUrl });
+    }
+    state.submittedReturn = true; saveToLocal();
+    finishBtn(btn, '✓ 送信済');
+    showSaveIndicator(); updateUI(); updateProgress();
+  } catch(e) {
+    resetBtn(btn, '送信'); showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ⑤ 秋葉原到着時刻 送信
+async function submitAkiba() {
+  const btn = document.getElementById('btnSubmitAkiba');
+  startBtnProgress(btn, 'progressAkiba');
+  try {
+    await postToGAS({
+      action: 'submit',
+      name: state.name, date: state.date,
+      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+      yokoSendMail: false, yokoMailTime: '',
+      photo: '', photoName: state.photoName || '',
+      returnStatus: state.returnStatus || '',
+      returnPhoto: '', returnPhotoName: state.returnPhotoName || '',
+      akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
+      shiiArrival: '', token: state.token,
+    });
+    state.submittedAkiba = true; saveToLocal();
+    finishBtn(btn, '✓ 送信済');
+    showSaveIndicator(); updateUI(); updateProgress();
+  } catch(e) {
+    resetBtn(btn, '送信'); showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ⑥ 椎名町到着時刻 送信（メール送信あり）
+async function submitShii() {
+  const btn = document.getElementById('btnSubmitShii');
+  startBtnProgress(btn, 'progressShii');
+  const shiiLabel = state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : '');
+  try {
+    await postToGAS({
+      action: 'submit',
+      name: state.name, date: state.date,
+      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
+      yokoSendMail: false, yokoMailTime: '',
+      photo: '', photoName: state.photoName || '',
+      returnStatus: state.returnStatus || '',
+      returnPhoto: '', returnPhotoName: state.returnPhotoName || '',
+      akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
+      shiiArrival: shiiLabel,
+      sendShiiMail: true, token: state.token,
+    });
+    state.submittedShii = true; state.submitted = true; saveToLocal();
+    finishBtn(btn, '✓ 送信済');
+    showSaveIndicator();
+    showToast('お疲れさまでした！');
+    updateUI(); updateProgress();
+  } catch(e) {
+    resetBtn(btn, '送信'); showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ─── ボタンプログレス演出 ───
+function startBtnProgress(btn, progressId) {
+  btn.disabled = true;
+  const prog = document.getElementById(progressId);
+  if (prog) { prog.style.width = '0%'; prog.style.transition = 'width 3s linear'; setTimeout(() => { prog.style.width = '90%'; }, 10); }
+}
+function finishBtn(btn, label) {
+  btn.classList.add('done');
+  btn.innerHTML = label;
+  const prog = btn.querySelector('.btn-progress');
+  if (prog) prog.style.width = '100%';
+}
+function resetBtn(btn, label) {
+  btn.disabled = false;
+  btn.textContent = label;
+  const prog = btn.querySelector('.btn-progress');
+  if (prog) { prog.style.transition = 'none'; prog.style.width = '0%'; }
 }
 
 // ═══════════════════════════════════════════
 // SECTION UNLOCK LOGIC
 // ═══════════════════════════════════════════
 function isNameDone()   { return !!state.name; }
-function isDateDone()   { return !!state.date; } // 常にtrue (デフォルト当日)
+function isDateDone()   { return !!state.date; }
 function isDepartDone() { return state.checkSake && state.checkDest && state.checkSlip; }
 function isYokoDone()   {
   if (!state.yokoArrival) return false;
@@ -1652,7 +1095,7 @@ function isReturnDone() {
   if (state.yokoArrival === '横浜なし') return true;
   if (!state.returnStatus) return false;
   if (state.returnStatus === 'あり') return !!(state.returnPhoto || state.returnPhotoName);
-  return true; // 'なし'
+  return true;
 }
 function isAkibaDone()  {
   if (!state.akibaArrival) return false;
@@ -1666,72 +1109,76 @@ function isShiiDone()   {
 }
 
 function updateUI() {
-  const nameDone   = isNameDone();
-  const dateDone   = isDateDone();
-  const departDone = isDepartDone();
-  const yokoDone   = isYokoDone();
-  const photoDone  = isPhotoDone();
-  const returnDone = isReturnDone();
-  const akibaDone  = isAkibaDone();
-  const shiiDone   = isShiiDone();
+  const nameDone    = isNameDone();
+  const dateDone    = isDateDone();
+  const departDone  = isDepartDone();
+  const yokoDone    = isYokoDone();
+  const photoDone   = isPhotoDone();
+  const returnDone  = isReturnDone();
+  const akibaDone   = isAkibaDone();
+  const shiiDone    = isShiiDone();
+  const isYokoNashi = state.yokoArrival === '横浜なし';
 
-  // セクションのロック/解除
-  setSection('sec-date',   nameDone,   dateDone);
+  setSection('sec-date',   nameDone, dateDone);
   setSection('sec-depart', nameDone && dateDone, departDone);
   setSection('sec-yoko',   state.departedShii, yokoDone);
-  setSection('sec-photo',  state.departedSancha, photoDone);
-  // 横浜なしの場合は伝票・返品セクションを非表示、グループラベルを変更
+
+  // 横浜なし: 伝票・返品を非表示
   const photoSection  = document.getElementById('sec-photo');
   const returnSection = document.getElementById('sec-return');
-  const yokoGroupLabel = document.getElementById('yokoGroupLabel');
-  if (state.yokoArrival === '横浜なし') {
+  if (isYokoNashi) {
     photoSection.style.display  = 'none';
     returnSection.style.display = 'none';
-    yokoGroupLabel.textContent  = '三軒茶屋 出発時';
   } else {
     photoSection.style.display  = '';
-    yokoGroupLabel.textContent  = '横浜 出発時';
     returnSection.style.display = '';
-    setSection('sec-return', state.departedSancha && photoDone, returnDone);
+    setSection('sec-photo',  state.submittedYoko, photoDone);
+    setSection('sec-return', state.submittedYoko && photoDone, returnDone);
   }
-  setSection('sec-akiba',  state.departedSancha && photoDone && returnDone, akibaDone);
-  setSection('sec-shii',   state.departedYoko, shiiDone);
+  setSection('sec-akiba', state.submittedYoko && photoDone && returnDone, akibaDone);
+  setSection('sec-shii',  state.submittedAkiba, shiiDone);
 
-  // 出発ボタンの活性制御
-  updateDepartBtn('btnDepartShii',  nameDone && dateDone && departDone, state.departedShii,  '🚌', '椎名町 出発', '椎名町 出発済');
-  updateDepartBtn('btnDepartSancha', state.departedShii && yokoDone,    state.departedSancha,'🚌', '三軒茶屋 出発','三軒茶屋 出発済');
-  updateDepartBtn('btnDepartYoko',  state.departedSancha && photoDone && returnDone && akibaDone, state.departedYoko, '🚌', '横浜 出発', '横浜 出発済');
-  updateDepartBtn('btnDepartAkiba', state.departedYoko && shiiDone,     state.departedAkiba, '🚌', '秋葉原 出発', '秋葉原 出発済');
+  // 送信ボタン活性制御
+  setSectionBtn('btnSubmitYoko',   state.departedShii && yokoDone,             state.submittedYoko);
+  setSectionBtn('btnSubmitPhoto',  state.submittedYoko && isPhotoDone() && !isYokoNashi, state.submittedPhoto);
+  setSectionBtn('btnSubmitReturn', state.submittedYoko && isReturnDone() && !isYokoNashi, state.submittedReturn);
+  setSectionBtn('btnSubmitAkiba',  state.submittedYoko && photoDone && returnDone && akibaDone, state.submittedAkiba);
+  setSectionBtn('btnSubmitShii',   state.submittedAkiba && shiiDone,           state.submittedShii);
+
+  // 椎名町出発ボタン
+  const shiiBtn = document.getElementById('btnDepartShii');
+  if (shiiBtn && !state.departedShii) {
+    shiiBtn.disabled = !(nameDone && dateDone && departDone);
+    shiiBtn.innerHTML = '<span class="depart-icon">🚌</span>椎名町 出発';
+    shiiBtn.classList.remove('done');
+  } else if (shiiBtn && state.departedShii) {
+    shiiBtn.innerHTML = '<span class="depart-icon">✓</span>椎名町 出発済';
+    shiiBtn.classList.add('done');
+    shiiBtn.disabled = true;
+  }
 }
 
-function updateDepartBtn(id, canDepart, isDone, icon, label, doneLabel) {
+function setSectionBtn(id, canSubmit, isDone) {
   const btn = document.getElementById(id);
   if (!btn) return;
   if (isDone) {
-    btn.innerHTML = `<span class="depart-icon">✓</span>${doneLabel}`;
-    btn.classList.add('done');
-    btn.disabled = true;
+    if (!btn.classList.contains('done')) finishBtn(btn, '✓ 送信済');
   } else {
-    btn.innerHTML = `<span class="depart-icon">${icon}</span>${label}`;
     btn.classList.remove('done');
-    btn.disabled = !canDepart;
+    btn.disabled = !canSubmit;
+    if (btn.textContent.trim() === '✓ 送信済') btn.textContent = '送信';
   }
 }
 
 function setSection(id, unlocked, done) {
   const el = document.getElementById(id);
+  if (!el) return;
   const numEl = el.querySelector('.section-num');
-  if (unlocked) {
-    el.classList.remove('locked');
-  } else {
-    el.classList.add('locked');
-  }
+  if (unlocked) el.classList.remove('locked'); else el.classList.add('locked');
   if (done && unlocked) {
-    el.classList.add('done');
-    numEl.innerHTML = '✓';
+    el.classList.add('done'); numEl.innerHTML = '✓';
   } else {
     el.classList.remove('done');
-    // 番号を元に戻す
     const nums = {'sec-name':1,'sec-date':2,'sec-depart':3,'sec-yoko':4,'sec-photo':5,'sec-return':6,'sec-akiba':7,'sec-shii':8};
     numEl.textContent = nums[id] || '';
   }
@@ -1741,19 +1188,22 @@ function setSection(id, unlocked, done) {
 // PROGRESS
 // ═══════════════════════════════════════════
 function updateProgress() {
+  const isYokoNashi = state.yokoArrival === '横浜なし';
   const steps = [
     isNameDone(), isDateDone(), isDepartDone(),
-    state.departedShii, state.departedSancha,
-    isReturnDone(),
-    state.departedYoko, state.departedAkiba
+    state.departedShii,
+    state.submittedYoko,
+    isYokoNashi ? true : state.submittedPhoto,
+    isYokoNashi ? true : state.submittedReturn,
+    state.submittedAkiba,
+    state.submittedShii,
   ];
   const done = steps.filter(Boolean).length;
-  const pct = Math.round((done / steps.length) * 100);
-  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressFill').style.width = Math.round((done / steps.length) * 100) + '%';
 }
 
 // ═══════════════════════════════════════════
-// GAS通信共通関数
+// GAS通信
 // ═══════════════════════════════════════════
 async function postToGAS(payload) {
   const params = new URLSearchParams();
@@ -1763,7 +1213,7 @@ async function postToGAS(payload) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: params.toString(),
     redirect: 'follow',
-    credentials: 'omit',   // ← Googleアカウントのログイン情報を送らない → /u/N/ リダイレクト防止
+    credentials: 'omit',
   });
   const text = await res.text();
   if (text.trim().startsWith('<')) {
@@ -1772,58 +1222,38 @@ async function postToGAS(payload) {
   return JSON.parse(text);
 }
 
-// ═══════════════════════════════════════════
-// GASからデータ復元（LINEブラウザ対応）
-// ═══════════════════════════════════════════
 async function loadFromGAS(name, date) {
-  if (GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') return false;
   try {
     const res = await fetch(
       `${GAS_URL}?action=load&name=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}`,
-      {
-        redirect: 'follow',
-        credentials: 'omit',  // ← 同上
-      }
+      { redirect: 'follow', credentials: 'omit' }
     );
     const text = await res.text();
     if (text.trim().startsWith('<')) return false;
     const json = JSON.parse(text);
     if (json.status !== 'ok' || !json.data) return false;
     const d = json.data;
-    if (d.checkSake)     { state.checkSake = true;  updateCheckStyle('chk-sake', true); document.getElementById('checkSake').checked = true; }
-    if (d.checkDest)     { state.checkDest = true;  updateCheckStyle('chk-dest', true); document.getElementById('checkDest').checked = true; }
-    if (d.checkSlip)     { state.checkSlip = true;  updateCheckStyle('chk-slip', true); document.getElementById('checkSlip').checked = true; }
-    if (d.yokoArrival)   { state.yokoArrival = d.yokoArrival;   setRadioDOM('yoko',  d.yokoArrival); }
-    if (d.yokoTime)      { state.yokoTime   = d.yokoTime;   document.getElementById('yokoTime').value  = d.yokoTime; }
+    if (d.checkSake)     { state.checkSake = true; updateCheckStyle('chk-sake', true); document.getElementById('checkSake').checked = true; }
+    if (d.checkDest)     { state.checkDest = true; updateCheckStyle('chk-dest', true); document.getElementById('checkDest').checked = true; }
+    if (d.checkSlip)     { state.checkSlip = true; updateCheckStyle('chk-slip', true); document.getElementById('checkSlip').checked = true; }
+    if (d.yokoArrival)   { state.yokoArrival = d.yokoArrival; setRadioDOM('yoko', d.yokoArrival); }
+    if (d.yokoTime)      { state.yokoTime = d.yokoTime; document.getElementById('yokoTime').value = d.yokoTime; }
     if (d.akibaArrival)  { state.akibaArrival = d.akibaArrival; setRadioDOM('akiba', d.akibaArrival); }
-    if (d.akibaTime)     { state.akibaTime  = d.akibaTime;  document.getElementById('akibaTime').value = d.akibaTime; }
-    if (d.shiiArrival)   { state.shiiArrival = d.shiiArrival;   setRadioDOM('shii',  d.shiiArrival); }
-    if (d.shiiTime)      { state.shiiTime   = d.shiiTime;   document.getElementById('shiiTime').value  = d.shiiTime; }
-    if (d.photoName)     { state.photoName  = d.photoName; }
-    if (d.returnStatus)  {
-      state.returnStatus = d.returnStatus;
-      setRadioDOM('return', d.returnStatus);
-      if (d.returnStatus === 'あり') {
-        document.getElementById('returnPhotoArea').style.display = 'block';
-      }
-    }
+    if (d.akibaTime)     { state.akibaTime = d.akibaTime; document.getElementById('akibaTime').value = d.akibaTime; }
+    if (d.shiiArrival)   { state.shiiArrival = d.shiiArrival; setRadioDOM('shii', d.shiiArrival); }
+    if (d.shiiTime)      { state.shiiTime = d.shiiTime; document.getElementById('shiiTime').value = d.shiiTime; }
+    if (d.photoName)     { state.photoName = d.photoName; }
+    if (d.returnStatus)  { state.returnStatus = d.returnStatus; setRadioDOM('return', d.returnStatus); if (d.returnStatus === 'あり') document.getElementById('returnPhotoArea').style.display = 'block'; }
     if (d.returnPhotoName) { state.returnPhotoName = d.returnPhotoName; }
     return true;
-  } catch(e) {
-    return false;
-  }
+  } catch(e) { return false; }
 }
 
 // ═══════════════════════════════════════════
 // UI HELPERS
 // ═══════════════════════════════════════════
-function showLoading(msg) {
-  document.getElementById('loadingText').textContent = msg;
-  document.getElementById('loadingOverlay').classList.add('visible');
-}
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.remove('visible');
-}
+function showLoading(msg) { document.getElementById('loadingText').textContent = msg; document.getElementById('loadingOverlay').classList.add('visible'); }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('visible'); }
 function showStatus(type, msg) {
   const el = document.getElementById('statusMsg');
   if (!el) return;
@@ -1832,8 +1262,7 @@ function showStatus(type, msg) {
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 </script>
