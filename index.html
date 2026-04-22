@@ -725,7 +725,7 @@
   <div class="timing-group">
     <div class="timing-label">
       <span class="timing-label-icon">🚌</span>
-      <span class="timing-label-text">横浜 出発時</span>
+      <span class="timing-label-text" id="yokoGroupLabel">横浜 出発時</span>
       <div class="timing-label-line"></div>
     </div>
 
@@ -1649,6 +1649,7 @@ function isPhotoDone()  {
   return !!(state.photo || state.photoName);
 }
 function isReturnDone() {
+  if (state.yokoArrival === '横浜なし') return true;
   if (!state.returnStatus) return false;
   if (state.returnStatus === 'あり') return !!(state.returnPhoto || state.returnPhotoName);
   return true; // 'なし'
@@ -1679,7 +1680,20 @@ function updateUI() {
   setSection('sec-depart', nameDone && dateDone, departDone);
   setSection('sec-yoko',   state.departedShii, yokoDone);
   setSection('sec-photo',  state.departedSancha, photoDone);
-  setSection('sec-return', state.departedSancha && photoDone, returnDone);
+  // 横浜なしの場合は伝票・返品セクションを非表示、グループラベルを変更
+  const photoSection  = document.getElementById('sec-photo');
+  const returnSection = document.getElementById('sec-return');
+  const yokoGroupLabel = document.getElementById('yokoGroupLabel');
+  if (state.yokoArrival === '横浜なし') {
+    photoSection.style.display  = 'none';
+    returnSection.style.display = 'none';
+    yokoGroupLabel.textContent  = '三軒茶屋 出発時';
+  } else {
+    photoSection.style.display  = '';
+    yokoGroupLabel.textContent  = '横浜 出発時';
+    returnSection.style.display = '';
+    setSection('sec-return', state.departedSancha && photoDone, returnDone);
+  }
   setSection('sec-akiba',  state.departedSancha && photoDone && returnDone, akibaDone);
   setSection('sec-shii',   state.departedYoko, shiiDone);
 
