@@ -190,38 +190,55 @@
     font-family: 'Noto Sans JP', sans-serif; font-size: 15px; font-weight: 700;
     cursor: pointer; letter-spacing: 0.05em;
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 0.15s, transform 0.1s;
+    transition: background 0.3s;
     position: relative; overflow: hidden;
   }
-  .btn-section-submit:hover { background: #1a46d6; }
-  .btn-section-submit:active { transform: scale(0.99); }
-  .btn-section-submit:disabled { background: var(--disabled); color: var(--disabled-text); cursor: not-allowed; transform: none; }
+  .btn-section-submit:disabled { background: var(--disabled); color: var(--disabled-text); cursor: not-allowed; }
   .btn-section-submit.done { background: var(--success); pointer-events: none; }
-  /* progress bar inside button */
-  .btn-section-submit .btn-progress {
-    position: absolute; left: 0; top: 0; height: 100%;
-    background: rgba(255,255,255,0.2); width: 0%;
-    transition: width 0.1s linear; pointer-events: none;
-  }
+  .btn-section-submit .btn-label { position: relative; z-index: 1; }
 
-  /* ─── Depart button (椎名町のみ残す) ─── */
+  /* ─── Depart button（椎名町） ─── */
   .depart-btn-area { margin-top: 14px; padding: 0 2px; }
   .btn-depart {
     width: 100%; padding: 18px 16px; border: none; border-radius: var(--radius);
     font-family: 'Noto Sans JP', sans-serif; font-size: 16px; font-weight: 700;
     letter-spacing: 0.06em; cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 10px;
-    transition: background 0.15s, transform 0.1s;
-    background: var(--text); color: #fff;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+    background: var(--accent); color: #fff;
+    box-shadow: 0 3px 10px rgba(43,91,255,0.25);
+    position: relative; overflow: hidden; transition: background 0.3s;
   }
-  .btn-depart:hover { background: #333; }
-  .btn-depart:active { transform: scale(0.98); }
-  .btn-depart:disabled { background: var(--disabled); color: var(--disabled-text); box-shadow: none; cursor: not-allowed; transform: none; }
+  .btn-depart:disabled { background: var(--disabled); color: var(--disabled-text); box-shadow: none; cursor: not-allowed; }
   .btn-depart.done { background: var(--success); box-shadow: 0 3px 10px rgba(42,122,75,0.25); pointer-events: none; }
-  .btn-depart .depart-icon { font-size: 20px; line-height: 1; }
+  .btn-depart .btn-label { position: relative; z-index: 1; }
   .depart-status { margin-top: 8px; font-size: 12px; text-align: center; color: var(--success); font-weight: 500; display: none; }
   .depart-status.show { display: block; }
+
+  /* ─── Stripe + pulse animation（送信中共通） ─── */
+  @keyframes stripe-move {
+    from { background-position: 0 0; }
+    to   { background-position: 40px 0; }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(43,91,255,0.4); }
+    50%       { box-shadow: 0 0 0 7px rgba(43,91,255,0); }
+  }
+  .btn-sending {
+    animation: pulse-glow 1.2s ease-in-out infinite !important;
+    pointer-events: none;
+  }
+  .btn-sending::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px, transparent 20px,
+      rgba(255,255,255,0.18) 20px, rgba(255,255,255,0.18) 40px
+    );
+    background-size: 40px 100%;
+    animation: stripe-move 0.6s linear infinite;
+    pointer-events: none;
+  }
 
   /* ─── Status / misc ─── */
   .status-msg { margin-top: 10px; padding: 10px 14px; border-radius: var(--radius); font-size: 13px; display: none; }
@@ -343,7 +360,7 @@
     <!-- 椎名町出発ボタン -->
     <div class="depart-btn-area">
       <button class="btn-depart" id="btnDepartShii" onclick="departShii()" disabled>
-        <span class="depart-icon">🚌</span>椎名町 出発
+        <span class="btn-label">椎名町 出発</span>
       </button>
       <div class="depart-status" id="statusShii"></div>
     </div>
@@ -372,10 +389,7 @@
           </div>
           <input type="time" id="yokoTime">
         </div>
-        <button class="btn-section-submit" id="btnSubmitYoko" onclick="submitYoko()" disabled>
-          <div class="btn-progress" id="progressYoko"></div>
-          送信
-        </button>
+        <button class="btn-section-submit" id="btnSubmitYoko" onclick="submitYoko()" disabled><span class="btn-label">送信</span></button>
       </div>
     </div>
 
@@ -399,10 +413,7 @@
             <button class="btn-retake" onclick="retakePhoto()">撮り直す</button>
           </div>
         </div>
-        <button class="btn-section-submit" id="btnSubmitPhoto" onclick="submitPhoto()" disabled>
-          <div class="btn-progress" id="progressPhoto"></div>
-          送信
-        </button>
+        <button class="btn-section-submit" id="btnSubmitPhoto" onclick="submitPhoto()" disabled><span class="btn-label">送信</span></button>
       </div>
     </div>
 
@@ -437,10 +448,7 @@
             </div>
           </div>
         </div>
-        <button class="btn-section-submit" id="btnSubmitReturn" onclick="submitReturn()" disabled>
-          <div class="btn-progress" id="progressReturn"></div>
-          送信
-        </button>
+        <button class="btn-section-submit" id="btnSubmitReturn" onclick="submitReturn()" disabled><span class="btn-label">送信</span></button>
       </div>
     </div>
 
@@ -465,10 +473,7 @@
           </div>
           <input type="time" id="akibaTime">
         </div>
-        <button class="btn-section-submit" id="btnSubmitAkiba" onclick="submitAkiba()" disabled>
-          <div class="btn-progress" id="progressAkiba"></div>
-          送信
-        </button>
+        <button class="btn-section-submit" id="btnSubmitAkiba" onclick="submitAkiba()" disabled><span class="btn-label">送信</span></button>
       </div>
     </div>
 
@@ -493,10 +498,7 @@
           </div>
           <input type="time" id="shiiTime">
         </div>
-        <button class="btn-section-submit" id="btnSubmitShii" onclick="submitShii()" disabled>
-          <div class="btn-progress" id="progressShii"></div>
-          送信
-        </button>
+        <button class="btn-section-submit" id="btnSubmitShii" onclick="submitShii()" disabled><span class="btn-label">送信</span></button>
       </div>
     </div>
 
@@ -899,43 +901,49 @@ function retakeReturnPhoto() {
 // ═══════════════════════════════════════════
 
 // ① 椎名町出発
+// ① 椎名町出発：行作成＋基本情報書き込み
 async function departShii() {
   const btn = document.getElementById('btnDepartShii');
   const statusEl = document.getElementById('statusShii');
-  btn.disabled = true; btn.textContent = '送信中...';
+  startBtnProgress(btn);
   try {
     await postToGAS({
-      action: 'autosave',
+      action: 'createrow',
       name: state.name, date: state.date,
       checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-      yokoArrival: '', yokoSendMail: false, yokoMailTime: '',
-      photo: '', photoName: '', akibaArrival: '', shiiArrival: '', token: state.token,
+      token: state.token,
     });
     state.departedShii = true; saveToLocal();
-    btn.innerHTML = '<span class="depart-icon">✓</span>椎名町 出発済';
-    btn.classList.add('done');
+    finishBtn(btn, '椎名町 出発済');
     statusEl.textContent = '✓ 記録しました'; statusEl.classList.add('show');
     showSaveIndicator(); updateUI(); updateProgress();
   } catch(e) {
-    btn.innerHTML = '<span class="depart-icon">🚌</span>椎名町 出発';
-    btn.disabled = false; showStatus('error', '通信エラー: ' + e.message);
+    resetBtn(btn, '椎名町 出発');
+    showStatus('error', '通信エラー: ' + e.message);
   }
 }
 
-// ② 横浜到着時刻 送信
+// ② 横浜到着時刻 送信：G列のみ更新（＋11:45〜はメール）
 async function submitYoko() {
   const btn = document.getElementById('btnSubmitYoko');
-  startBtnProgress(btn, 'progressYoko');
-  const sendYokoMail = (state.yokoArrival === '11:45~');
+  startBtnProgress(btn);
+  const yokoLabel = state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : '');
+  const sendMail  = (state.yokoArrival === '11:45~');
   try {
-    await postToGAS({
-      action: 'autosave',
-      name: state.name, date: state.date,
-      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-      yokoSendMail: sendYokoMail, yokoMailTime: sendYokoMail ? state.yokoTime : '',
-      photo: '', photoName: '', akibaArrival: '', shiiArrival: '', token: state.token,
-    });
+    const calls = [
+      postToGAS({
+        action: 'updatecol',
+        name: state.name, date: state.date,
+        cols: [7], values: [yokoLabel],
+      }),
+    ];
+    if (sendMail) {
+      calls.push(postToGAS({
+        action: 'sendyokomail',
+        name: state.name, yokoMailTime: state.yokoTime,
+      }));
+    }
+    await Promise.all(calls);
     state.submittedYoko = true; saveToLocal();
     finishBtn(btn, '✓ 送信済');
     showSaveIndicator(); updateUI(); updateProgress();
@@ -944,10 +952,10 @@ async function submitYoko() {
   }
 }
 
-// ③ 横浜伝票写真 送信
+// ③ 横浜伝票写真 送信：写真アップロード（H・I列）
 async function submitPhoto() {
   const btn = document.getElementById('btnSubmitPhoto');
-  startBtnProgress(btn, 'progressPhoto');
+  startBtnProgress(btn);
   try {
     await postToGAS({
       action: 'uploadphoto',
@@ -962,37 +970,27 @@ async function submitPhoto() {
   }
 }
 
-// ④ 横浜返品 送信
+// ④ 横浜返品 送信：N列更新＋返品ありなら写真(O・P列)＋メール
 async function submitReturn() {
   const btn = document.getElementById('btnSubmitReturn');
-  startBtnProgress(btn, 'progressReturn');
+  startBtnProgress(btn);
   try {
-    const promises = [];
-    // 返品写真があればアップロード
-    if (state.returnPhoto && state.returnPhotoName) {
-      promises.push(postToGAS({
+    // N列（返品有無）を書き込む
+    await postToGAS({
+      action: 'updatecol',
+      name: state.name, date: state.date,
+      cols: [14], values: [state.returnStatus || ''],
+    });
+    let returnPhotoUrl = '';
+    if (state.returnStatus === 'あり' && state.returnPhoto && state.returnPhotoName) {
+      const result = await postToGAS({
         action: 'uploadphoto',
         name: state.name, date: state.date,
         photoType: 'return', photo: state.returnPhoto, photoName: state.returnPhotoName,
-      }));
+      });
+      returnPhotoUrl = result.url || '';
     }
-    // 返品ステータスをスプシに記録
-    promises.push(postToGAS({
-      action: 'autosave',
-      name: state.name, date: state.date,
-      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-      yokoSendMail: false, yokoMailTime: '',
-      photo: '', photoName: state.photoName || '',
-      returnStatus: state.returnStatus || '',
-      returnPhoto: '', returnPhotoName: state.returnPhotoName || '',
-      akibaArrival: '', shiiArrival: '', token: state.token,
-    }));
-    const results = await Promise.all(promises);
-    // 返品ありの場合はメール送信
     if (state.returnStatus === 'あり') {
-      const uploadResult = results.find(r => r && r.url);
-      const returnPhotoUrl = uploadResult ? uploadResult.url : '';
       await postToGAS({ action: 'sendreturnmail', name: state.name, returnPhotoUrl });
     }
     state.submittedReturn = true; saveToLocal();
@@ -1003,22 +1001,16 @@ async function submitReturn() {
   }
 }
 
-// ⑤ 秋葉原到着時刻 送信
+// ⑤ 秋葉原到着時刻 送信：J列のみ更新
 async function submitAkiba() {
   const btn = document.getElementById('btnSubmitAkiba');
-  startBtnProgress(btn, 'progressAkiba');
+  startBtnProgress(btn);
+  const akibaLabel = state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : '');
   try {
     await postToGAS({
-      action: 'submit',
+      action: 'updatecol',
       name: state.name, date: state.date,
-      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-      yokoSendMail: false, yokoMailTime: '',
-      photo: '', photoName: state.photoName || '',
-      returnStatus: state.returnStatus || '',
-      returnPhoto: '', returnPhotoName: state.returnPhotoName || '',
-      akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
-      shiiArrival: '', token: state.token,
+      cols: [10], values: [akibaLabel],
     });
     state.submittedAkiba = true; saveToLocal();
     finishBtn(btn, '✓ 送信済');
@@ -1028,25 +1020,23 @@ async function submitAkiba() {
   }
 }
 
-// ⑥ 椎名町到着時刻 送信（メール送信あり）
+// ⑥ 椎名町到着時刻 送信：K列更新＋メール
 async function submitShii() {
   const btn = document.getElementById('btnSubmitShii');
-  startBtnProgress(btn, 'progressShii');
+  startBtnProgress(btn);
   const shiiLabel = state.shiiArrival + (state.shiiTime ? ` (${state.shiiTime})` : '');
   try {
-    await postToGAS({
-      action: 'submit',
-      name: state.name, date: state.date,
-      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
-      yokoArrival: state.yokoArrival + (state.yokoTime ? ` (${state.yokoTime})` : ''),
-      yokoSendMail: false, yokoMailTime: '',
-      photo: '', photoName: state.photoName || '',
-      returnStatus: state.returnStatus || '',
-      returnPhoto: '', returnPhotoName: state.returnPhotoName || '',
-      akibaArrival: state.akibaArrival + (state.akibaTime ? ` (${state.akibaTime})` : ''),
-      shiiArrival: shiiLabel,
-      sendShiiMail: true, token: state.token,
-    });
+    await Promise.all([
+      postToGAS({
+        action: 'updatecol',
+        name: state.name, date: state.date,
+        cols: [11], values: [shiiLabel],
+      }),
+      postToGAS({
+        action: 'sendshiimail',
+        name: state.name, shiiArrival: shiiLabel,
+      }),
+    ]);
     state.submittedShii = true; state.submitted = true; saveToLocal();
     finishBtn(btn, '✓ 送信済');
     showSaveIndicator();
@@ -1057,23 +1047,24 @@ async function submitShii() {
   }
 }
 
-// ─── ボタンプログレス演出 ───
-function startBtnProgress(btn, progressId) {
+// ─── ボタンプログレス演出（ストライプ+パルス） ───
+function startBtnProgress(btn) {
   btn.disabled = true;
-  const prog = document.getElementById(progressId);
-  if (prog) { prog.style.width = '0%'; prog.style.transition = 'width 3s linear'; setTimeout(() => { prog.style.width = '90%'; }, 10); }
+  btn.classList.add('btn-sending');
+  const label = btn.querySelector('.btn-label');
+  if (label) label.textContent = '送信中...';
+  else btn.textContent = '送信中...';
 }
 function finishBtn(btn, label) {
+  btn.classList.remove('btn-sending');
   btn.classList.add('done');
-  btn.innerHTML = label;
-  const prog = btn.querySelector('.btn-progress');
-  if (prog) prog.style.width = '100%';
+  btn.innerHTML = `<span class="btn-label">${label}</span>`;
 }
 function resetBtn(btn, label) {
+  btn.classList.remove('btn-sending');
+  btn.classList.remove('done');
   btn.disabled = false;
-  btn.textContent = label;
-  const prog = btn.querySelector('.btn-progress');
-  if (prog) { prog.style.transition = 'none'; prog.style.width = '0%'; }
+  btn.innerHTML = `<span class="btn-label">${label}</span>`;
 }
 
 // ═══════════════════════════════════════════
@@ -1133,27 +1124,28 @@ function updateUI() {
     photoSection.style.display  = '';
     returnSection.style.display = '';
     setSection('sec-photo',  state.submittedYoko, photoDone);
-    setSection('sec-return', state.submittedYoko && photoDone, returnDone);
+    setSection('sec-return', state.submittedYoko && state.submittedPhoto, returnDone);
   }
-  setSection('sec-akiba', state.submittedYoko && photoDone && returnDone, akibaDone);
+  setSection('sec-akiba', state.submittedYoko && (isYokoNashi || (state.submittedPhoto && state.submittedReturn)), akibaDone);
   setSection('sec-shii',  state.submittedAkiba, shiiDone);
 
   // 送信ボタン活性制御
-  setSectionBtn('btnSubmitYoko',   state.departedShii && yokoDone,             state.submittedYoko);
-  setSectionBtn('btnSubmitPhoto',  state.submittedYoko && isPhotoDone() && !isYokoNashi, state.submittedPhoto);
-  setSectionBtn('btnSubmitReturn', state.submittedYoko && isReturnDone() && !isYokoNashi, state.submittedReturn);
-  setSectionBtn('btnSubmitAkiba',  state.submittedYoko && photoDone && returnDone && akibaDone, state.submittedAkiba);
-  setSectionBtn('btnSubmitShii',   state.submittedAkiba && shiiDone,           state.submittedShii);
+  setSectionBtn('btnSubmitYoko',   state.departedShii && yokoDone,                                    state.submittedYoko);
+  setSectionBtn('btnSubmitPhoto',  state.submittedYoko && isPhotoDone() && !isYokoNashi,              state.submittedPhoto);
+  setSectionBtn('btnSubmitReturn', state.submittedYoko && state.submittedPhoto && isReturnDone() && !isYokoNashi, state.submittedReturn);
+  setSectionBtn('btnSubmitAkiba',  state.submittedYoko && (isYokoNashi || (state.submittedPhoto && state.submittedReturn)) && akibaDone, state.submittedAkiba);
+  setSectionBtn('btnSubmitShii',   state.submittedAkiba && shiiDone,                                  state.submittedShii);
 
   // 椎名町出発ボタン
   const shiiBtn = document.getElementById('btnDepartShii');
   if (shiiBtn && !state.departedShii) {
+    shiiBtn.classList.remove('done', 'btn-sending');
     shiiBtn.disabled = !(nameDone && dateDone && departDone);
-    shiiBtn.innerHTML = '<span class="depart-icon">🚌</span>椎名町 出発';
-    shiiBtn.classList.remove('done');
+    shiiBtn.innerHTML = '<span class="btn-label">椎名町 出発</span>';
   } else if (shiiBtn && state.departedShii) {
-    shiiBtn.innerHTML = '<span class="depart-icon">✓</span>椎名町 出発済';
     shiiBtn.classList.add('done');
+    shiiBtn.classList.remove('btn-sending');
+    shiiBtn.innerHTML = '<span class="btn-label">✓ 椎名町 出発済</span>';
     shiiBtn.disabled = true;
   }
 }
