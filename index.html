@@ -1049,8 +1049,7 @@ async function submitShii() {
 
 // ─── ボタンプログレス演出（ストライプ+パルス） ───
 function startBtnProgress(btn) {
-  btn.disabled = true;
-  btn.classList.add('btn-sending');
+  btn.classList.add('btn-sending');  // pointer-events:noneで誤クリック防止
   const label = btn.querySelector('.btn-label');
   if (label) label.textContent = '送信中...';
   else btn.textContent = '送信中...';
