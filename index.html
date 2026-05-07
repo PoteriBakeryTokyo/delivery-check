@@ -42,18 +42,73 @@
   .header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
+    padding: 10px 16px;
     position: sticky;
     top: 0;
     z-index: 100;
+  }
+  .header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
   .header-title { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; color: var(--text-sub); text-transform: uppercase; }
-  .header-date { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-sub); }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .header-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-sub); }
   .save-indicator { font-size: 11px; color: var(--success); font-weight: 500; opacity: 0; transition: opacity 0.3s; }
   .save-indicator.show { opacity: 1; }
+  .check-note { display: block; font-size: 11px; color: #92400e; margin-top: 3px; line-height: 1.5; }
+  .section-notice { display: flex; align-items: center; gap: 6px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 9px 12px; font-size: 12px; font-weight: 600; color: #1d4ed8; margin-bottom: 12px; }
+
+  /* 緊急連絡先ボタン */
+  .emergency-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+  .emergency-btn .e-arrow { font-size: 8px; transition: transform 0.25s; display: inline-block; }
+  .emergency-btn.open .e-arrow { transform: rotate(180deg); }
+
+  /* アコーディオン */
+  .emergency-panel {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+    background: #fff5f5;
+    border-top: 1px solid #fca5a5;
+    margin: 0 -16px;
+  }
+  .emergency-panel.open { max-height: 500px; }
+  .emergency-panel-inner { padding: 12px 16px; }
+  .emergency-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .emergency-table th {
+    background: #fee2e2;
+    color: #991b1b;
+    font-weight: 700;
+    padding: 6px 8px;
+    border: 1px solid #fca5a5;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .emergency-table td {
+    padding: 7px 8px;
+    border: 1px solid #fde8e8;
+    color: #1f2937;
+    vertical-align: middle;
+  }
+  .emergency-table tr:nth-child(even) td { background: #fff1f1; }
+  .emergency-table .name-sub { font-size: 10px; color: #9ca3af; display: block; }
+  .emergency-table a { color: #0891b2; font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor; }
 
   /* ─── Progress ─── */
   .progress-bar { height: 3px; background: var(--border); position: sticky; top: 49px; z-index: 99; }
@@ -280,10 +335,48 @@
 <div class="toast" id="toast"></div>
 
 <header class="header">
-  <span class="header-title">Poteri Bakery Tokyo 配送ログ</span>
-  <div style="display:flex;align-items:center;gap:10px">
-    <span class="save-indicator" id="saveIndicator">保存済み ✓</span>
-    <span class="header-date" id="headerDate"></span>
+  <div class="header-row">
+    <span class="header-title">Poteri Bakery Tokyo 配送ログ</span>
+    <div class="header-right">
+      <span class="save-indicator" id="saveIndicator">保存済み ✓</span>
+      <span class="header-date" id="headerDate"></span>
+      <button class="emergency-btn" id="emergencyBtn" onclick="toggleEmergency()">🚨 緊急連絡先 <span class="e-arrow">▼</span></button>
+    </div>
+  </div>
+  <div class="emergency-panel" id="emergencyPanel">
+    <div class="emergency-panel-inner">
+      <table class="emergency-table">
+        <thead>
+          <tr><th>連絡順</th><th>氏名</th><th>LINE</th><th>電話</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>山崎篤史<span class="name-sub">やまさき あつし</span></td>
+            <td><a href="https://line.me/ti/p/33aup7Fh2h" target="_blank">LINE</a></td>
+            <td>090-7778-1388</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>淵脇静<span class="name-sub">ふちわき しずか</span></td>
+            <td><a href="https://line.me/ti/p/7eE4HX48Pr" target="_blank">LINE</a></td>
+            <td>090-1162-6250</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>唐遥<span class="name-sub">たん よう</span></td>
+            <td><a href="https://line.me/ti/p/PBqhUf632E" target="_blank">LINE</a></td>
+            <td>080-3446-8818</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Jade Lee<span class="name-sub">ジェイド リー</span></td>
+            <td><a href="https://line.me/ti/p/mZLxk4T-Ie" target="_blank">LINE</a></td>
+            <td>070-7669-0925</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </header>
 <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -354,6 +447,7 @@
           <label class="check-item" id="chk-sake"><input type="checkbox" id="checkSake"><div class="check-box"></div><span class="check-text">酒気を帯びていません</span></label>
           <label class="check-item" id="chk-dest"><input type="checkbox" id="checkDest"><div class="check-box"></div><span class="check-text">本日の行き先を確認しました</span></label>
           <label class="check-item" id="chk-slip"><input type="checkbox" id="checkSlip"><div class="check-box"></div><span class="check-text">横浜伝票を持ちました</span></label>
+          <label class="check-item" id="chk-temp"><input type="checkbox" id="checkTemp"><div class="check-box"></div><span class="check-text">気温が25度を超える場合は、荷室の冷房を15℃でON<span class="check-note">ただしエンジンON時のみ。エンジンOFF時は切ってください。</span></span></label>
         </div>
       </div>
     </div>
@@ -460,6 +554,7 @@
         <span class="section-label">到着予想時刻（秋葉原）</span>
       </div>
       <div class="section-body">
+        <div class="section-notice">🛣️ 横浜→秋葉原は高速を使ってください</div>
         <div class="radio-group" id="akibaRadio">
           <div class="radio-item" data-val="~13:00" onclick="selectRadio('akiba',this)"><div class="radio-dot"></div><span>～13:00</span></div>
           <div class="radio-item" data-val="13:00~13:30" onclick="selectRadio('akiba',this)"><div class="radio-dot"></div><span>13:00～13:30</span></div>
@@ -520,7 +615,7 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzdw94KTvAufXsFJFUqVfZz
 // ═══════════════════════════════════════════
 let state = {
   name: '', date: '',
-  checkSake: false, checkDest: false, checkSlip: false,
+  checkSake: false, checkDest: false, checkSlip: false, checkTemp: false,
   yokoArrival: '', yokoTime: '',
   photo: null, photoName: '',
   akibaArrival: '', akibaTime: '',
@@ -556,6 +651,13 @@ function formatDate(iso) {
   if (!iso) return '';
   const [y, m, d] = iso.split('-');
   return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+}
+
+function toggleEmergency() {
+  const btn = document.getElementById('emergencyBtn');
+  const panel = document.getElementById('emergencyPanel');
+  btn.classList.toggle('open');
+  panel.classList.toggle('open');
 }
 
 // ═══════════════════════════════════════════
@@ -600,6 +702,7 @@ function loadDataForNameDate(name, date) {
     state.checkSake = saved.checkSake || false;
     state.checkDest = saved.checkDest || false;
     state.checkSlip = saved.checkSlip || false;
+    state.checkTemp = saved.checkTemp || false;
     state.yokoArrival = saved.yokoArrival || '';
     state.yokoTime = saved.yokoTime || '';
     state.photo = localStorage.getItem(key + '_photo') || null;
@@ -625,9 +728,11 @@ function loadDataForNameDate(name, date) {
     document.getElementById('checkSake').checked = state.checkSake;
     document.getElementById('checkDest').checked = state.checkDest;
     document.getElementById('checkSlip').checked = state.checkSlip;
+    document.getElementById('checkTemp').checked = state.checkTemp;
     updateCheckStyle('chk-sake', state.checkSake);
     updateCheckStyle('chk-dest', state.checkDest);
     updateCheckStyle('chk-slip', state.checkSlip);
+    updateCheckStyle('chk-temp', state.checkTemp);
     if (state.yokoArrival)  setRadioDOM('yoko',   state.yokoArrival);
     if (state.akibaArrival) setRadioDOM('akiba',  state.akibaArrival);
     if (state.shiiArrival)  setRadioDOM('shii',   state.shiiArrival);
@@ -716,8 +821,8 @@ document.getElementById('dateInput').addEventListener('change', function() {
 });
 
 function resetFormFields() {
-  state.checkSake = false; state.checkDest = false; state.checkSlip = false;
-  ['checkSake','checkDest','checkSlip'].forEach(id => document.getElementById(id).checked = false);
+  state.checkSake = false; state.checkDest = false; state.checkSlip = false; state.checkTemp = false;
+  ['checkSake','checkDest','checkSlip','checkTemp'].forEach(id => document.getElementById(id).checked = false);
   updateCheckStyle('chk-sake', false); updateCheckStyle('chk-dest', false); updateCheckStyle('chk-slip', false);
   state.yokoArrival = ''; state.yokoTime = '';
   state.akibaArrival = ''; state.akibaTime = '';
@@ -746,10 +851,10 @@ function resetFormFields() {
 // ═══════════════════════════════════════════
 // CHECKBOXES
 // ═══════════════════════════════════════════
-['checkSake','checkDest','checkSlip'].forEach(id => {
+['checkSake','checkDest','checkSlip','checkTemp'].forEach(id => {
   document.getElementById(id).addEventListener('change', function() {
-    const map = {checkSake:'checkSake',checkDest:'checkDest',checkSlip:'checkSlip'};
-    const uiMap = {checkSake:'chk-sake',checkDest:'chk-dest',checkSlip:'chk-slip'};
+    const map = {checkSake:'checkSake',checkDest:'checkDest',checkSlip:'checkSlip',checkTemp:'checkTemp'};
+    const uiMap = {checkSake:'chk-sake',checkDest:'chk-dest',checkSlip:'chk-slip',checkTemp:'chk-temp'};
     state[map[id]] = this.checked;
     updateCheckStyle(uiMap[id], this.checked);
     saveToLocal(); updateUI(); updateProgress();
@@ -911,7 +1016,7 @@ async function departShii() {
     await postToGAS({
       action: 'createrow',
       name: state.name, date: state.date,
-      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip,
+      checkSake: state.checkSake, checkDest: state.checkDest, checkSlip: state.checkSlip, checkTemp: state.checkTemp,
       token: state.token,
     });
     state.departedShii = true; saveToLocal();
@@ -1072,7 +1177,7 @@ function resetBtn(btn, label) {
 // ═══════════════════════════════════════════
 function isNameDone()   { return !!state.name; }
 function isDateDone()   { return !!state.date; }
-function isDepartDone() { return state.checkSake && state.checkDest && state.checkSlip; }
+function isDepartDone() { return state.checkSake && state.checkDest && state.checkSlip && state.checkTemp; }
 function isYokoDone()   {
   if (!state.yokoArrival) return false;
   if (state.yokoArrival === '11:45~' && !state.yokoTime) return false;
@@ -1228,6 +1333,7 @@ async function loadFromGAS(name, date) {
     if (d.checkSake)     { state.checkSake = true; updateCheckStyle('chk-sake', true); document.getElementById('checkSake').checked = true; }
     if (d.checkDest)     { state.checkDest = true; updateCheckStyle('chk-dest', true); document.getElementById('checkDest').checked = true; }
     if (d.checkSlip)     { state.checkSlip = true; updateCheckStyle('chk-slip', true); document.getElementById('checkSlip').checked = true; }
+    if (d.checkTemp)     { state.checkTemp = true; updateCheckStyle('chk-temp', true); document.getElementById('checkTemp').checked = true; }
     if (d.yokoArrival)   { state.yokoArrival = d.yokoArrival; setRadioDOM('yoko', d.yokoArrival); }
     if (d.yokoTime)      { state.yokoTime = d.yokoTime; document.getElementById('yokoTime').value = d.yokoTime; }
     if (d.akibaArrival)  { state.akibaArrival = d.akibaArrival; setRadioDOM('akiba', d.akibaArrival); }
