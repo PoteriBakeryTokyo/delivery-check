@@ -54,6 +54,8 @@
   }
   .header-title { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; color: var(--text-sub); text-transform: uppercase; }
   .header-right { display: flex; align-items: center; gap: 8px; }
+  .header-manual-link { font-size: 12px; font-weight: 600; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .header-manual-link:hover { text-decoration: underline; }
   .header-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-sub); }
   .save-indicator { font-size: 11px; color: var(--success); font-weight: 500; opacity: 0; transition: opacity 0.3s; }
   .save-indicator.show { opacity: 1; }
@@ -337,6 +339,10 @@
 <header class="header">
   <div class="header-row">
     <span class="header-title">Poteri Bakery Tokyo 配送ログ</span>
+    <a class="header-manual-link" href="https://drive.google.com/file/d/1oO74SWxN7D3NKRJwmbBBg7hxXQAzUPpC/view?usp=sharing" target="_blank">📋 配送マニュアル</a>
+  </div>
+  <div class="header-row" style="margin-top:6px">
+    <div></div>
     <div class="header-right">
       <span class="save-indicator" id="saveIndicator">保存済み ✓</span>
       <span class="header-date" id="headerDate"></span>
