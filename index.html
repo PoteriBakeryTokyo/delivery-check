@@ -579,10 +579,36 @@
       </div>
     </div>
 
-    <!-- ⑧ 到着予想時刻（椎名町）＋送信ボタン -->
+    <!-- ⑧ 到着予想時刻（池袋）＋送信ボタン -->
+    <div class="section locked" id="sec-ikebukuro">
+      <div class="section-header">
+        <div class="section-num" id="num-ikebukuro">8</div>
+        <span class="section-label">到着予想時刻（池袋）</span>
+      </div>
+      <div class="section-body">
+        <div class="radio-group" id="ikebukuroRadio">
+          <div class="radio-item" data-val="~13:30" onclick="selectRadio('ikebukuro',this)"><div class="radio-dot"></div><span>～13:30</span></div>
+          <div class="radio-item" data-val="13:30~14:00" onclick="selectRadio('ikebukuro',this)"><div class="radio-dot"></div><span>13:30～14:00</span></div>
+          <div class="radio-item" data-val="14:00~14:30" onclick="selectRadio('ikebukuro',this)"><div class="radio-dot"></div><span>14:00～14:30</span></div>
+          <div class="radio-item" data-val="14:30~15:00" onclick="selectRadio('ikebukuro',this)"><div class="radio-dot"></div><span>14:30～15:00</span></div>
+          <div class="radio-item" data-val="15:00~" onclick="selectRadio('ikebukuro',this)"><div class="radio-dot"></div><span>15:00～</span></div>
+          <div class="radio-item" data-val="池袋なし" onclick="selectRadio('ikebukuro',this)"><div class="radio-dot"></div><span>池袋なし</span></div>
+        </div>
+        <div class="time-extra" id="ikebukuroTimeExtra">
+          <div class="time-prompt">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            到着予定時刻を入力してください
+          </div>
+          <input type="time" id="ikebukuroTime">
+        </div>
+        <button class="btn-section-submit" id="btnSubmitIkebukuro" onclick="submitIkebukuro()" disabled><span class="btn-label">送信</span></button>
+      </div>
+    </div>
+
+    <!-- ⑨ 到着予想時刻（椎名町）＋送信ボタン -->
     <div class="section locked" id="sec-shii">
       <div class="section-header">
-        <div class="section-num" id="num-shii">8</div>
+        <div class="section-num" id="num-shii">9</div>
         <span class="section-label">到着予想時刻（椎名町）</span>
       </div>
       <div class="section-body">
@@ -625,14 +651,16 @@ let state = {
   yokoArrival: '', yokoTime: '',
   photo: null, photoName: '',
   akibaArrival: '', akibaTime: '',
+  ikebukuroArrival: '', ikebukuroTime: '',
   shiiArrival: '', shiiTime: '',
   token: '', submitted: false,
   departedShii: false,
-  submittedYoko: false,   // 横浜到着時刻送信済
-  submittedPhoto: false,  // 横浜伝票写真送信済
-  submittedReturn: false, // 横浜返品送信済
-  submittedAkiba: false,  // 秋葉原到着時刻送信済
-  submittedShii: false,   // 椎名町到着時刻送信済
+  submittedYoko: false,      // 横浜到着時刻送信済
+  submittedPhoto: false,     // 横浜伝票写真送信済
+  submittedReturn: false,    // 横浜返品送信済
+  submittedAkiba: false,     // 秋葉原到着時刻送信済
+  submittedIkebukuro: false, // 池袋到着時刻送信済
+  submittedShii: false,      // 椎名町到着時刻送信済
   returnStatus: '',
   returnPhoto: null, returnPhotoName: '',
 };
@@ -715,15 +743,18 @@ function loadDataForNameDate(name, date) {
     state.photoName = saved.photoName || '';
     state.akibaArrival = saved.akibaArrival || '';
     state.akibaTime = saved.akibaTime || '';
+    state.ikebukuroArrival = saved.ikebukuroArrival || '';
+    state.ikebukuroTime = saved.ikebukuroTime || '';
     state.shiiArrival = saved.shiiArrival || '';
     state.shiiTime = saved.shiiTime || '';
-    state.submitted      = saved.submitted      || false;
-    state.departedShii   = saved.departedShii   || false;
-    state.submittedYoko  = saved.submittedYoko  || false;
-    state.submittedPhoto = saved.submittedPhoto || false;
-    state.submittedReturn= saved.submittedReturn|| false;
-    state.submittedAkiba = saved.submittedAkiba || false;
-    state.submittedShii  = saved.submittedShii  || false;
+    state.submitted           = saved.submitted           || false;
+    state.departedShii        = saved.departedShii        || false;
+    state.submittedYoko       = saved.submittedYoko       || false;
+    state.submittedPhoto      = saved.submittedPhoto      || false;
+    state.submittedReturn     = saved.submittedReturn     || false;
+    state.submittedAkiba      = saved.submittedAkiba      || false;
+    state.submittedIkebukuro  = saved.submittedIkebukuro  || false;
+    state.submittedShii       = saved.submittedShii       || false;
     state.returnStatus   = saved.returnStatus   || '';
     state.returnPhotoName= saved.returnPhotoName|| '';
     state.returnPhoto = localStorage.getItem(key + '_returnPhoto') || null;
@@ -740,12 +771,14 @@ function loadDataForNameDate(name, date) {
     updateCheckStyle('chk-slip', state.checkSlip);
     updateCheckStyle('chk-temp', state.checkTemp);
     if (state.yokoArrival)  setRadioDOM('yoko',   state.yokoArrival);
-    if (state.akibaArrival) setRadioDOM('akiba',  state.akibaArrival);
-    if (state.shiiArrival)  setRadioDOM('shii',   state.shiiArrival);
-    if (state.returnStatus) setRadioDOM('return', state.returnStatus);
-    if (state.yokoTime)  document.getElementById('yokoTime').value  = state.yokoTime;
-    if (state.akibaTime) document.getElementById('akibaTime').value = state.akibaTime;
-    if (state.shiiTime)  document.getElementById('shiiTime').value  = state.shiiTime;
+    if (state.akibaArrival)      setRadioDOM('akiba',      state.akibaArrival);
+    if (state.ikebukuroArrival)  setRadioDOM('ikebukuro',  state.ikebukuroArrival);
+    if (state.shiiArrival)       setRadioDOM('shii',       state.shiiArrival);
+    if (state.returnStatus)      setRadioDOM('return',     state.returnStatus);
+    if (state.yokoTime)       document.getElementById('yokoTime').value       = state.yokoTime;
+    if (state.akibaTime)      document.getElementById('akibaTime').value      = state.akibaTime;
+    if (state.ikebukuroTime)  document.getElementById('ikebukuroTime').value  = state.ikebukuroTime;
+    if (state.shiiTime)       document.getElementById('shiiTime').value       = state.shiiTime;
     if (state.photo) {
       document.getElementById('photoImg').src = state.photo;
       document.getElementById('photoLabel').textContent = state.photoName;
@@ -832,12 +865,13 @@ function resetFormFields() {
   updateCheckStyle('chk-sake', false); updateCheckStyle('chk-dest', false); updateCheckStyle('chk-slip', false);
   state.yokoArrival = ''; state.yokoTime = '';
   state.akibaArrival = ''; state.akibaTime = '';
+  state.ikebukuroArrival = ''; state.ikebukuroTime = '';
   state.shiiArrival = ''; state.shiiTime = '';
-  ['yokoRadio','akibaRadio','shiiRadio','returnRadio'].forEach(id => {
+  ['yokoRadio','akibaRadio','ikebukuroRadio','shiiRadio','returnRadio'].forEach(id => {
     document.getElementById(id).querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
   });
-  ['yokoTimeExtra','akibaTimeExtra','shiiTimeExtra'].forEach(id => document.getElementById(id).classList.remove('visible'));
-  ['yokoTime','akibaTime','shiiTime'].forEach(id => document.getElementById(id).value = '');
+  ['yokoTimeExtra','akibaTimeExtra','ikebukuroTimeExtra','shiiTimeExtra'].forEach(id => document.getElementById(id).classList.remove('visible'));
+  ['yokoTime','akibaTime','ikebukuroTime','shiiTime'].forEach(id => document.getElementById(id).value = '');
   state.photo = null; state.photoName = '';
   document.getElementById('photoPreview').style.display = 'none';
   document.getElementById('photoImg').src = '';
@@ -851,7 +885,7 @@ function resetFormFields() {
   state.submitted = false;
   state.departedShii = false;
   state.submittedYoko = false; state.submittedPhoto = false;
-  state.submittedReturn = false; state.submittedAkiba = false; state.submittedShii = false;
+  state.submittedReturn = false; state.submittedAkiba = false; state.submittedIkebukuro = false; state.submittedShii = false;
 }
 
 // ═══════════════════════════════════════════
@@ -901,6 +935,11 @@ function selectRadio(group, el) {
     const extra = document.getElementById('akibaTimeExtra');
     if (val === '14:00~') extra.classList.add('visible');
     else { extra.classList.remove('visible'); state.akibaTime = ''; }
+  } else if (group === 'ikebukuro') {
+    state.ikebukuroArrival = val;
+    const extra = document.getElementById('ikebukuroTimeExtra');
+    if (val === '15:00~') extra.classList.add('visible');
+    else { extra.classList.remove('visible'); state.ikebukuroTime = ''; }
   } else if (group === 'shii') {
     state.shiiArrival = val;
     const extra = document.getElementById('shiiTimeExtra');
@@ -911,7 +950,7 @@ function selectRadio(group, el) {
 }
 
 function setRadioDOM(group, val) {
-  const groupMap = {yoko:'yokoRadio',akiba:'akibaRadio',shii:'shiiRadio',return:'returnRadio'};
+  const groupMap = {yoko:'yokoRadio',akiba:'akibaRadio',ikebukuro:'ikebukuroRadio',shii:'shiiRadio',return:'returnRadio'};
   const container = document.getElementById(groupMap[group]);
   if (!container) return;
   container.querySelectorAll('.radio-item').forEach(r => {
@@ -919,6 +958,7 @@ function setRadioDOM(group, val) {
   });
   if (group === 'yoko' && val === '11:45~') document.getElementById('yokoTimeExtra').classList.add('visible');
   if (group === 'akiba' && val === '14:00~') document.getElementById('akibaTimeExtra').classList.add('visible');
+  if (group === 'ikebukuro' && val === '15:00~') document.getElementById('ikebukuroTimeExtra').classList.add('visible');
   if (group === 'shii' && val === '15:00~') document.getElementById('shiiTimeExtra').classList.add('visible');
   if (group === 'yoko') document.getElementById('btnCamera').disabled = (val === '横浜なし');
   if (group === 'return' && val === 'あり') document.getElementById('returnPhotoArea').style.display = 'block';
@@ -926,6 +966,7 @@ function setRadioDOM(group, val) {
 
 document.getElementById('yokoTime').addEventListener('change', function() { state.yokoTime = this.value; saveToLocal(); updateUI(); updateProgress(); });
 document.getElementById('akibaTime').addEventListener('change', function() { state.akibaTime = this.value; saveToLocal(); updateUI(); updateProgress(); });
+document.getElementById('ikebukuroTime').addEventListener('change', function() { state.ikebukuroTime = this.value; saveToLocal(); updateUI(); updateProgress(); });
 document.getElementById('shiiTime').addEventListener('change', function() { state.shiiTime = this.value; saveToLocal(); updateUI(); updateProgress(); });
 
 // ═══════════════════════════════════════════
@@ -1132,7 +1173,26 @@ async function submitAkiba() {
   }
 }
 
-// ⑥ 椎名町到着時刻 送信：K列更新＋メール
+// ⑥ 池袋到着時刻 送信：L列更新
+async function submitIkebukuro() {
+  const btn = document.getElementById('btnSubmitIkebukuro');
+  startBtnProgress(btn);
+  const ikebukuroLabel = state.ikebukuroArrival + (state.ikebukuroTime ? ` (${state.ikebukuroTime})` : '');
+  try {
+    await postToGAS({
+      action: 'updatecol',
+      name: state.name, date: state.date,
+      cols: [12], values: [ikebukuroLabel],
+    });
+    state.submittedIkebukuro = true; saveToLocal();
+    finishBtn(btn, '✓ 送信済');
+    showSaveIndicator(); updateUI(); updateProgress();
+  } catch(e) {
+    resetBtn(btn, '送信'); showStatus('error', '通信エラー: ' + e.message);
+  }
+}
+
+// ⑦ 椎名町到着時刻 送信：K列更新＋メール
 async function submitShii() {
   const btn = document.getElementById('btnSubmitShii');
   startBtnProgress(btn);
@@ -1204,6 +1264,11 @@ function isAkibaDone()  {
   if (state.akibaArrival === '14:00~' && !state.akibaTime) return false;
   return true;
 }
+function isIkebukuroDone() {
+  if (!state.ikebukuroArrival) return false;
+  if (state.ikebukuroArrival === '15:00~' && !state.ikebukuroTime) return false;
+  return true;
+}
 function isShiiDone()   {
   if (!state.shiiArrival) return false;
   if (state.shiiArrival === '15:00~' && !state.shiiTime) return false;
@@ -1217,8 +1282,9 @@ function updateUI() {
   const yokoDone    = isYokoDone();
   const photoDone   = isPhotoDone();
   const returnDone  = isReturnDone();
-  const akibaDone   = isAkibaDone();
-  const shiiDone    = isShiiDone();
+  const akibaDone       = isAkibaDone();
+  const ikebukuroDone   = isIkebukuroDone();
+  const shiiDone        = isShiiDone();
   const isYokoNashi = state.yokoArrival === '横浜なし';
 
   setSection('sec-date',   nameDone, dateDone);
@@ -1237,15 +1303,17 @@ function updateUI() {
     setSection('sec-photo',  state.submittedYoko, photoDone);
     setSection('sec-return', state.submittedYoko && state.submittedPhoto, returnDone);
   }
-  setSection('sec-akiba', state.submittedYoko && (isYokoNashi || (state.submittedPhoto && state.submittedReturn)), akibaDone);
-  setSection('sec-shii',  state.submittedAkiba, shiiDone);
+  setSection('sec-akiba',      state.submittedYoko && (isYokoNashi || (state.submittedPhoto && state.submittedReturn)), akibaDone);
+  setSection('sec-ikebukuro', state.submittedAkiba, ikebukuroDone);
+  setSection('sec-shii',      state.submittedIkebukuro, shiiDone);
 
   // 送信ボタン活性制御
-  setSectionBtn('btnSubmitYoko',   state.departedShii && yokoDone,                                    state.submittedYoko);
-  setSectionBtn('btnSubmitPhoto',  state.submittedYoko && isPhotoDone() && !isYokoNashi,              state.submittedPhoto);
-  setSectionBtn('btnSubmitReturn', state.submittedYoko && state.submittedPhoto && isReturnDone() && !isYokoNashi, state.submittedReturn);
-  setSectionBtn('btnSubmitAkiba',  state.submittedYoko && (isYokoNashi || (state.submittedPhoto && state.submittedReturn)) && akibaDone, state.submittedAkiba);
-  setSectionBtn('btnSubmitShii',   state.submittedAkiba && shiiDone,                                  state.submittedShii);
+  setSectionBtn('btnSubmitYoko',      state.departedShii && yokoDone,                                                                        state.submittedYoko);
+  setSectionBtn('btnSubmitPhoto',     state.submittedYoko && isPhotoDone() && !isYokoNashi,                                                   state.submittedPhoto);
+  setSectionBtn('btnSubmitReturn',    state.submittedYoko && state.submittedPhoto && isReturnDone() && !isYokoNashi,                          state.submittedReturn);
+  setSectionBtn('btnSubmitAkiba',     state.submittedYoko && (isYokoNashi || (state.submittedPhoto && state.submittedReturn)) && akibaDone,   state.submittedAkiba);
+  setSectionBtn('btnSubmitIkebukuro', state.submittedAkiba && ikebukuroDone,                                                                  state.submittedIkebukuro);
+  setSectionBtn('btnSubmitShii',      state.submittedIkebukuro && shiiDone,                                                                   state.submittedShii);
 
   // 椎名町出発ボタン
   const shiiBtn = document.getElementById('btnDepartShii');
@@ -1282,7 +1350,7 @@ function setSection(id, unlocked, done) {
     el.classList.add('done'); numEl.innerHTML = '✓';
   } else {
     el.classList.remove('done');
-    const nums = {'sec-name':1,'sec-date':2,'sec-depart':3,'sec-yoko':4,'sec-photo':5,'sec-return':6,'sec-akiba':7,'sec-shii':8};
+    const nums = {'sec-name':1,'sec-date':2,'sec-depart':3,'sec-yoko':4,'sec-photo':5,'sec-return':6,'sec-akiba':7,'sec-ikebukuro':8,'sec-shii':9};
     numEl.textContent = nums[id] || '';
   }
 }
@@ -1299,6 +1367,7 @@ function updateProgress() {
     isYokoNashi ? true : state.submittedPhoto,
     isYokoNashi ? true : state.submittedReturn,
     state.submittedAkiba,
+    state.submittedIkebukuro,
     state.submittedShii,
   ];
   const done = steps.filter(Boolean).length;
@@ -1342,10 +1411,12 @@ async function loadFromGAS(name, date) {
     if (d.checkTemp)     { state.checkTemp = true; updateCheckStyle('chk-temp', true); document.getElementById('checkTemp').checked = true; }
     if (d.yokoArrival)   { state.yokoArrival = d.yokoArrival; setRadioDOM('yoko', d.yokoArrival); }
     if (d.yokoTime)      { state.yokoTime = d.yokoTime; document.getElementById('yokoTime').value = d.yokoTime; }
-    if (d.akibaArrival)  { state.akibaArrival = d.akibaArrival; setRadioDOM('akiba', d.akibaArrival); }
-    if (d.akibaTime)     { state.akibaTime = d.akibaTime; document.getElementById('akibaTime').value = d.akibaTime; }
-    if (d.shiiArrival)   { state.shiiArrival = d.shiiArrival; setRadioDOM('shii', d.shiiArrival); }
-    if (d.shiiTime)      { state.shiiTime = d.shiiTime; document.getElementById('shiiTime').value = d.shiiTime; }
+    if (d.akibaArrival)      { state.akibaArrival = d.akibaArrival; setRadioDOM('akiba', d.akibaArrival); }
+    if (d.akibaTime)         { state.akibaTime = d.akibaTime; document.getElementById('akibaTime').value = d.akibaTime; }
+    if (d.ikebukuroArrival)  { state.ikebukuroArrival = d.ikebukuroArrival; setRadioDOM('ikebukuro', d.ikebukuroArrival); }
+    if (d.ikebukuroTime)     { state.ikebukuroTime = d.ikebukuroTime; document.getElementById('ikebukuroTime').value = d.ikebukuroTime; }
+    if (d.shiiArrival)       { state.shiiArrival = d.shiiArrival; setRadioDOM('shii', d.shiiArrival); }
+    if (d.shiiTime)          { state.shiiTime = d.shiiTime; document.getElementById('shiiTime').value = d.shiiTime; }
     if (d.photoName)     { state.photoName = d.photoName; }
     if (d.returnStatus)  { state.returnStatus = d.returnStatus; setRadioDOM('return', d.returnStatus); if (d.returnStatus === 'あり') document.getElementById('returnPhotoArea').style.display = 'block'; }
     if (d.returnPhotoName) { state.returnPhotoName = d.returnPhotoName; }
