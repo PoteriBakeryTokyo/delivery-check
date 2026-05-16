@@ -62,56 +62,6 @@
   .check-note { display: block; font-size: 11px; color: #92400e; margin-top: 3px; line-height: 1.5; }
   .section-notice { display: flex; align-items: center; gap: 6px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 9px 12px; font-size: 12px; font-weight: 600; color: #1d4ed8; margin-bottom: 12px; }
 
-  /* 緊急連絡先ボタン */
-  .emergency-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: #fee2e2;
-    color: #dc2626;
-    border: 1px solid #fca5a5;
-    border-radius: 6px;
-    padding: 3px 8px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    letter-spacing: 0.02em;
-  }
-  .emergency-btn .e-arrow { font-size: 8px; transition: transform 0.25s; display: inline-block; }
-  .emergency-btn.open .e-arrow { transform: rotate(180deg); }
-
-  /* アコーディオン */
-  .emergency-panel {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.3s ease;
-    background: #fff5f5;
-    border-top: 1px solid #fca5a5;
-    margin: 0 -16px;
-  }
-  .emergency-panel.open { max-height: 500px; }
-  .emergency-panel-inner { padding: 12px 16px; }
-  .emergency-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .emergency-table th {
-    background: #fee2e2;
-    color: #991b1b;
-    font-weight: 700;
-    padding: 6px 8px;
-    border: 1px solid #fca5a5;
-    text-align: left;
-    white-space: nowrap;
-  }
-  .emergency-table td {
-    padding: 7px 8px;
-    border: 1px solid #fde8e8;
-    color: #1f2937;
-    vertical-align: middle;
-  }
-  .emergency-table tr:nth-child(even) td { background: #fff1f1; }
-  .emergency-table .name-sub { font-size: 10px; color: #9ca3af; display: block; }
-  .emergency-table a { color: #0891b2; font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor; }
-
   /* ─── Progress ─── */
   .progress-bar { height: 3px; background: var(--border); position: sticky; top: 49px; z-index: 99; }
   .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; }
@@ -346,23 +296,6 @@
     <div class="header-right">
       <span class="save-indicator" id="saveIndicator">保存済み ✓</span>
       <span class="header-date" id="headerDate"></span>
-      <button class="emergency-btn" id="emergencyBtn" onclick="toggleEmergency()">🚨 緊急連絡先 <span class="e-arrow">▼</span></button>
-    </div>
-  </div>
-  <div class="emergency-panel" id="emergencyPanel">
-    <div class="emergency-panel-inner">
-      <p style="font-size:13px;color:#7f1d1d;margin-bottom:8px">連絡先情報は配送マニュアルを参照してください。</p>
-      <table class="emergency-table">
-        <thead>
-          <tr><th>連絡順</th><th>氏名</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>1</td><td>山崎</td></tr>
-          <tr><td>2</td><td>淵脇</td></tr>
-          <tr><td>3</td><td>唐</td></tr>
-          <tr><td>4</td><td>Jade</td></tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </header>
@@ -638,13 +571,6 @@ function formatDate(iso) {
   if (!iso) return '';
   const [y, m, d] = iso.split('-');
   return `${y}年${parseInt(m)}月${parseInt(d)}日`;
-}
-
-function toggleEmergency() {
-  const btn = document.getElementById('emergencyBtn');
-  const panel = document.getElementById('emergencyPanel');
-  btn.classList.toggle('open');
-  panel.classList.toggle('open');
 }
 
 // ═══════════════════════════════════════════
