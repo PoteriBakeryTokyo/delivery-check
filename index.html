@@ -61,6 +61,11 @@
   .save-indicator.show { opacity: 1; }
   .check-note { display: block; font-size: 11px; color: #92400e; margin-top: 3px; line-height: 1.5; }
   .section-notice { display: flex; align-items: center; gap: 6px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 9px 12px; font-size: 12px; font-weight: 600; color: #1d4ed8; margin-bottom: 12px; }
+  .return-photo-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .return-photo-item { position: relative; }
+  .return-photo-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: block; }
+  .return-photo-item-label { font-size: 10px; color: var(--text-sub); text-align: center; width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+  .return-photo-delete { position: absolute; top: -6px; right: -6px; background: var(--danger); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 13px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
 
   /* ─── Progress ─── */
   .progress-bar { height: 3px; background: var(--border); position: sticky; top: 49px; z-index: 99; }
@@ -448,19 +453,15 @@
           <div class="return-notice">📦 対象商品の写真を撮った上で、秋葉原に持って行ってください</div>
           <div class="time-prompt">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            返品の写真を撮影してください（必須）
+            返品の写真を撮影してください（必須・複数枚可）
           </div>
-          <div class="camera-area" style="margin-top:10px">
+          <div class="return-photo-list" id="returnPhotoList"></div>
+          <div style="margin-top:10px">
             <input type="file" accept="image/*" capture="environment" id="returnCameraInput" style="display:none">
             <button class="btn-camera" id="btnReturnCamera" onclick="triggerReturnCamera()">
               <svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M7 2L5.5 4H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.5L13 2H7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
-              返品写真を撮影する
+              写真を追加
             </button>
-            <div class="photo-preview" id="returnPhotoPreview">
-              <img id="returnPhotoImg" src="" alt="返品写真">
-              <div class="photo-preview-label" id="returnPhotoLabel"></div>
-              <button class="btn-retake" onclick="retakeReturnPhoto()">撮り直す</button>
-            </div>
           </div>
         </div>
         <button class="btn-section-submit" id="btnSubmitReturn" onclick="submitReturn()" disabled><span class="btn-label">送信</span></button>
@@ -548,7 +549,7 @@ let state = {
   submittedAkiba: false,  // 秋葉原到着時刻送信済
   submittedShii: false,   // 椎名町到着時刻送信済
   returnStatus: '',
-  returnPhoto: null, returnPhotoName: '',
+  returnPhotos: [],
 };
 
 // ═══════════════════════════════════════════
@@ -590,11 +591,15 @@ function saveToLocal() {
   const key = storageKey(state.name, state.date);
   const data = { ...state, savedAt: Date.now() };
   const photo = data.photo;
-  const returnPhoto = data.returnPhoto;
-  delete data.photo; delete data.returnPhoto;
+  const returnPhotos = data.returnPhotos.map(p => ({ photoName: p.photoName }));
+  const returnPhotoData = data.returnPhotos.map(p => p.photo);
+  delete data.photo;
+  data.returnPhotos = returnPhotos;
   localStorage.setItem(key, JSON.stringify(data));
-  if (photo)       { try { localStorage.setItem(key + '_photo', photo); } catch(e) {} }
-  if (returnPhoto) { try { localStorage.setItem(key + '_returnPhoto', returnPhoto); } catch(e) {} }
+  if (photo) { try { localStorage.setItem(key + '_photo', photo); } catch(e) {} }
+  returnPhotoData.forEach((p, i) => {
+    if (p) { try { localStorage.setItem(key + '_returnPhoto_' + i, p); } catch(e) {} }
+  });
 }
 
 function showSaveIndicator() {
@@ -631,9 +636,19 @@ function loadDataForNameDate(name, date) {
     state.submittedReturn= saved.submittedReturn|| false;
     state.submittedAkiba = saved.submittedAkiba || false;
     state.submittedShii  = saved.submittedShii  || false;
-    state.returnStatus   = saved.returnStatus   || '';
-    state.returnPhotoName= saved.returnPhotoName|| '';
-    state.returnPhoto = localStorage.getItem(key + '_returnPhoto') || null;
+    state.returnStatus = saved.returnStatus || '';
+    const savedReturnPhotos = saved.returnPhotos || [];
+    if (savedReturnPhotos.length > 0) {
+      state.returnPhotos = savedReturnPhotos.map((p, i) => ({
+        photo: localStorage.getItem(key + '_returnPhoto_' + i) || null,
+        photoName: p.photoName || '',
+      }));
+    } else if (saved.returnPhotoName) {
+      // 旧フォーマット互換
+      state.returnPhotos = [{ photo: localStorage.getItem(key + '_returnPhoto') || null, photoName: saved.returnPhotoName }];
+    } else {
+      state.returnPhotos = [];
+    }
 
     // DOM反映
     document.getElementById('dateInput').value = state.date;
@@ -658,11 +673,9 @@ function loadDataForNameDate(name, date) {
       document.getElementById('photoLabel').textContent = state.photoName;
       document.getElementById('photoPreview').style.display = 'block';
     }
-    if (state.returnPhoto) {
-      document.getElementById('returnPhotoImg').src = state.returnPhoto;
-      document.getElementById('returnPhotoLabel').textContent = state.returnPhotoName;
-      document.getElementById('returnPhotoPreview').style.display = 'block';
+    if (state.returnPhotos.length > 0) {
       document.getElementById('returnPhotoArea').style.display = 'block';
+      renderReturnPhotos();
     }
     if (!isMine && raw) document.getElementById('lockBadge').classList.add('visible');
     saved.token = state.token;
@@ -750,10 +763,9 @@ function resetFormFields() {
   document.getElementById('photoImg').src = '';
   document.getElementById('cameraInput').value = '';
   document.getElementById('btnCamera').disabled = false;
-  state.returnStatus = ''; state.returnPhoto = null; state.returnPhotoName = '';
+  state.returnStatus = ''; state.returnPhotos = [];
   document.getElementById('returnPhotoArea').style.display = 'none';
-  document.getElementById('returnPhotoPreview').style.display = 'none';
-  document.getElementById('returnPhotoImg').src = '';
+  document.getElementById('returnPhotoList').innerHTML = '';
   document.getElementById('returnCameraInput').value = '';
   state.submitted = false;
   state.departedShii = false;
@@ -798,9 +810,8 @@ function selectRadio(group, el) {
     if (val === 'あり') { area.style.display = 'block'; }
     else {
       area.style.display = 'none';
-      state.returnPhoto = null; state.returnPhotoName = '';
-      document.getElementById('returnPhotoPreview').style.display = 'none';
-      document.getElementById('returnPhotoImg').src = '';
+      state.returnPhotos = [];
+      document.getElementById('returnPhotoList').innerHTML = '';
       document.getElementById('returnCameraInput').value = '';
     }
   } else if (group === 'akiba') {
@@ -886,32 +897,43 @@ document.getElementById('returnCameraInput').addEventListener('change', async fu
   const now = new Date(); const pad = n => String(n).padStart(2,'0');
   const ds = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
   const ts = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-  state.returnPhotoName = `${ds}_${ts}_${state.name||'unknown'}_返品.jpg`;
+  const photoName = `${ds}_${ts}_${state.name||'unknown'}_返品${state.returnPhotos.length + 1}.jpg`;
   const reader = new FileReader();
   reader.onload = async ev => {
     const resized = await resizeImage(ev.target.result, PHOTO_MAX_PX, PHOTO_QUALITY);
-    const kb = Math.round(resized.length * 0.75 / 1024);
-    state.returnPhoto = resized;
-    document.getElementById('returnPhotoImg').src = resized;
-    document.getElementById('returnPhotoLabel').textContent = `${state.returnPhotoName}　(約${kb}KB)`;
-    document.getElementById('returnPhotoPreview').style.display = 'block';
+    state.returnPhotos.push({ photo: resized, photoName });
+    this.value = '';
+    renderReturnPhotos();
     saveToLocal(); updateUI(); updateProgress();
   };
   reader.readAsDataURL(file);
 });
+
+function renderReturnPhotos() {
+  const list = document.getElementById('returnPhotoList');
+  list.innerHTML = '';
+  state.returnPhotos.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'return-photo-item';
+    item.innerHTML = `
+      <img src="${p.photo}" alt="返品写真${i+1}">
+      <div class="return-photo-item-label">${i+1}枚目</div>
+      <button class="return-photo-delete" onclick="deleteReturnPhoto(${i})">×</button>`;
+    list.appendChild(item);
+  });
+}
+
+function deleteReturnPhoto(index) {
+  state.returnPhotos.splice(index, 1);
+  renderReturnPhotos();
+  saveToLocal(); updateUI(); updateProgress();
+}
 
 function retakePhoto() {
   state.photo = null; state.photoName = '';
   document.getElementById('photoPreview').style.display = 'none';
   document.getElementById('photoImg').src = '';
   document.getElementById('cameraInput').value = '';
-  saveToLocal(); updateUI(); updateProgress();
-}
-function retakeReturnPhoto() {
-  state.returnPhoto = null; state.returnPhotoName = '';
-  document.getElementById('returnPhotoPreview').style.display = 'none';
-  document.getElementById('returnPhotoImg').src = '';
-  document.getElementById('returnCameraInput').value = '';
   saveToLocal(); updateUI(); updateProgress();
 }
 
@@ -1000,17 +1022,21 @@ async function submitReturn() {
       name: state.name, date: state.date,
       cols: [14], values: [state.returnStatus || ''],
     });
-    let returnPhotoUrl = '';
-    if (state.returnStatus === 'あり' && state.returnPhoto && state.returnPhotoName) {
-      const result = await postToGAS({
-        action: 'uploadphoto',
-        name: state.name, date: state.date,
-        photoType: 'return', photo: state.returnPhoto, photoName: state.returnPhotoName,
-      });
-      returnPhotoUrl = result.url || '';
+    let returnPhotoUrls = '';
+    if (state.returnStatus === 'あり' && state.returnPhotos.length > 0) {
+      const urls = [];
+      for (const p of state.returnPhotos) {
+        const result = await postToGAS({
+          action: 'uploadphoto',
+          name: state.name, date: state.date,
+          photoType: 'return', photo: p.photo, photoName: p.photoName,
+        });
+        if (result.url) urls.push(result.url);
+      }
+      returnPhotoUrls = urls.join(',');
     }
     if (state.returnStatus === 'あり') {
-      await postToGAS({ action: 'sendreturnmail', name: state.name, returnPhotoUrl });
+      await postToGAS({ action: 'sendreturnmail', name: state.name, returnPhotoUrls });
     }
     state.submittedReturn = true; saveToLocal();
     finishBtn(btn, '✓ 送信済');
@@ -1103,7 +1129,7 @@ function isPhotoDone()  {
 function isReturnDone() {
   if (state.yokoArrival === '横浜なし') return true;
   if (!state.returnStatus) return false;
-  if (state.returnStatus === 'あり') return !!(state.returnPhoto || state.returnPhotoName);
+  if (state.returnStatus === 'あり') return state.returnPhotos.length > 0;
   return true;
 }
 function isAkibaDone()  {
@@ -1255,7 +1281,6 @@ async function loadFromGAS(name, date) {
     if (d.shiiTime)      { state.shiiTime = d.shiiTime; document.getElementById('shiiTime').value = d.shiiTime; }
     if (d.photoName)     { state.photoName = d.photoName; }
     if (d.returnStatus)  { state.returnStatus = d.returnStatus; setRadioDOM('return', d.returnStatus); if (d.returnStatus === 'あり') document.getElementById('returnPhotoArea').style.display = 'block'; }
-    if (d.returnPhotoName) { state.returnPhotoName = d.returnPhotoName; }
     return true;
   } catch(e) { return false; }
 }
