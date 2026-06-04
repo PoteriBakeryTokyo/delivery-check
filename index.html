@@ -225,6 +225,7 @@
   .btn-depart .btn-label { position: relative; z-index: 1; }
   .depart-status { margin-top: 8px; font-size: 12px; text-align: center; color: var(--success); font-weight: 500; display: none; }
   .depart-status.show { display: block; }
+  .depart-status.error { color: var(--danger); }
 
   /* ─── Stripe + pulse animation（送信中共通） ─── */
   @keyframes stripe-move {
@@ -960,6 +961,8 @@ async function departShii() {
     showSaveIndicator(); updateUI(); updateProgress();
   } catch(e) {
     resetBtn(btn, '椎名町 出発');
+    statusEl.textContent = '⚠ 送信失敗。再度お試しください。';
+    statusEl.classList.add('show', 'error');
     showStatus('error', '通信エラー: ' + e.message);
   }
 }
@@ -1182,8 +1185,8 @@ function updateUI() {
 
   // 椎名町出発ボタン
   const shiiBtn = document.getElementById('btnDepartShii');
-  if (shiiBtn && !state.departedShii) {
-    shiiBtn.classList.remove('done', 'btn-sending');
+  if (shiiBtn && !state.departedShii && !shiiBtn.classList.contains('btn-sending')) {
+    shiiBtn.classList.remove('done');
     shiiBtn.disabled = !(nameDone && dateDone && departDone);
     shiiBtn.innerHTML = '<span class="btn-label">椎名町 出発</span>';
   } else if (shiiBtn && state.departedShii) {
