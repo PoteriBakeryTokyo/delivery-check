@@ -984,7 +984,7 @@ async function submitYoko() {
     if (sendMail) {
       calls.push(postToGAS({
         action: 'sendyokomail',
-        name: state.name, yokoMailTime: state.yokoTime,
+        name: state.name, yokoArrival: yokoLabel,
       }));
     }
     await Promise.all(calls);
@@ -1258,7 +1258,11 @@ async function postToGAS(payload) {
   if (text.trim().startsWith('<')) {
     throw new Error('GASからHTMLが返されました。デプロイURLとアクセス設定を確認してください。');
   }
-  return JSON.parse(text);
+  const json = JSON.parse(text);
+  if (json.status === 'error') {
+    throw new Error('GASエラー: ' + (json.message || '不明なエラー'));
+  }
+  return json;
 }
 
 async function loadFromGAS(name, date) {
