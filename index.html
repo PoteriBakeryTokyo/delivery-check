@@ -941,7 +941,7 @@ async function submitYoko() {
     if (sendMail) {
       calls.push(postToGAS({
         action: 'sendyokomail',
-        name: state.name, yokoMailTime: state.yokoTime,
+        name: state.name, yokoArrival: yokoLabel,
       }));
     }
     await Promise.all(calls);
